@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/tests-37%20bestanden-brightgreen)]() [![Version](https://img.shields.io/badge/version-0.1.0-blue)]() [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)]() [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)]() [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)]() [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)]() [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-blueviolet)]() [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-informational)]() [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt)
+[![Tests](https://img.shields.io/badge/tests-57%20bestanden-brightgreen)]() [![Version](https://img.shields.io/badge/version-0.2.0-blue)]() [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)]() [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)]() [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)]() [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)]() [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-blueviolet)]() [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-informational)]() [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt)
 
 # hook-master
 
@@ -60,11 +60,12 @@ Arten:
   und welche Agenten/Events es abdeckt — es reimplementiert oder umhüllt
   die eigene Logik des Konsumenten nie.
 
-Reserviert, noch nicht durchgesetzt (geplantes Folgeticket "HE2" —
-Hook-Doctor + Consent-Allowlist): ein optionales `doctor`-Objekt je Eintrag
-(`exec_check`, `mtime_policy`, `allowlist`). Das Schema validiert die Form
-dieser Felder heute schon, damit ein Doctor-Check später andocken kann, ohne
-eine zweite Schema-Migration zu brauchen — ausgewertet wird noch nichts.
+Daneben gibt es ein reserviertes, weiterhin unausgewertetes optionales
+`doctor`-Objekt je Eintrag (`exec_check`, `mtime_policy`, `allowlist`) —
+nur auf Form geprüft, von nichts gelesen. **Nicht verwechseln mit der
+tatsächlichen Hook-Doctor- + Consent-Allowlist-Funktion ("HE2"), die in
+diesem Release ausgeliefert wird und vollständig außerhalb dieses Feldes
+lebt** — siehe nächster Abschnitt.
 
 ## Befehle
 
@@ -79,6 +80,47 @@ eine zweite Schema-Migration zu brauchen — ausgewertet wird noch nichts.
 | `status` | `verify` + `diff` kombiniert |
 | `import-sync --root <dir> --slot <slot>` | Einmalige Migration: `kind=consumer`-Zeiger aus einer bestehenden `.SYNC/hooks/adoption/<slot>.json`-Struktur übernehmen |
 | `export-sync-view --root <dir> --slot <slot>` | Optional: reine Metadaten-Ansicht nach `.SYNC/hooks/registry/<slot>.json` veröffentlichen |
+| `doctor [--id <id>] [--timing]` | Diagnose über verify/diff hinaus — siehe „Hook-Doctor & Erstnutzungs-Consent" unten. Exit `0`/`1`/`2` |
+| `consent <id> [--by <name>] [--note <text>]` | Deploy-Freigabe für einen Eintrag erteilen |
+| `consent-status [<id>]` | Consent-Status für einen oder alle Einträge anzeigen |
+
+## Hook-Doctor & Erstnutzungs-Consent (HE2)
+
+Konzept-Nachbau nach dem Hermes-Agent-Muster (`hermes doctor`-artige
+Diagnose + Erstnutzungs-Consent-Allowlist), keine Code-Übernahme — siehe
+`T-20260825-152496601`.
+
+**`hook-master doctor [--id <id>] [--timing]`** geht über `verify`/`diff`
+hinaus: für jeden `kind=hook`-Eintrag werden Existenz+Hash-Match der
+kanonischen Datei, Ausführbarkeit (`py_compile` für `.py`-Quellen),
+Materialisierungszustand und mtime-Drift geprüft (materialisierte Kopie
+direkt bearbeitet, kanonischer Weg umgangen — nur gemeldet zusammen mit
+einem echten Hash-Unterschied, nie bei einem bloßen „gerade erst
+deployed"-Zeitstempel, sonst gäbe es bei JEDEM ersten `deploy()` einen
+Fehlalarm). Für jedes Ziel wird zusätzlich geprüft, ob die referenzierte
+Agent-Config-Datei (`settings.json`/`hooks.json`/`config.toml`) existiert
+und sich parsen lässt. `kind=consumer`-Einträge (memoryhooker,
+workflowhooker) bekommen nur den Config-Check — dort gibt es kein
+kanonisches Skript zum Hashen/Kompilieren/Drift-Prüfen. Schweregrad ist
+`ok` < `warning` < `error`; Exit-Code entsprechend `0`/`1`/`2`. `--timing`
+ergänzt eine leichtgewichtige `py_compile`-Zeitmessung je kanonischem
+Skript (kein echter Hook-Aufruf — der könnte Nebenwirkungen haben).
+
+**Consent-Allowlist** (`~/.hook-master/allowlist.json`, oder
+`HOOK_MASTER_ALLOWLIST_PATH`): ein brandneuer `kind=hook`-Eintrag wird von
+`deploy()` **nicht** materialisiert, bevor er explizit freigegeben wurde —
+er wird als `pending-consent` gemeldet und unangetastet gelassen.
+Freigeben mit `hook-master consent <id> [--by <name>] [--note <text>]`;
+prüfen mit `hook-master consent-status [<id>]`. Zwei bewusst
+unterschiedliche Fehlerhaltungen, kein Widerspruch: Das **Lesen** der
+Allowlist ist fail-open (eine fehlende oder kaputte Datei wirft nie eine
+Exception — sie degradiert zu „nichts freigegeben" statt die CLI
+abstürzen zu lassen); die darauf aufbauende **Deploy-Entscheidung** ist
+fail-closed (ein unbekannter oder `consented: false`-Eintrag gilt immer
+als „nein"). Die 7 Einträge aus dem ersten Release dieses Moduls wurden
+deployed, bevor die Allowlist existierte, und sind als
+`consented_by: "grandfathered"` mit explizitem Vermerk geseedet — nicht
+stillschweigend befreit.
 
 ## Optionaler Transport, nie erforderlich
 

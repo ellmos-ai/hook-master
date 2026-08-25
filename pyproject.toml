@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hook-master"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local-first pointer registry and materialization for agent hooks"
 readme = "README.md"
 requires-python = ">=3.10"

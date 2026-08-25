@@ -1,7 +1,7 @@
 {
   "schema": "ellmos.module.v2",
   "id": "hook-master",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "display_name": "hook-master",
   "category": "control",
   "kind": "library",
@@ -11,7 +11,9 @@
     "hook.registry",
     "hook.materialize",
     "hook.verify",
-    "hook.import-sync"
+    "hook.import-sync",
+    "hook.doctor",
+    "hook.consent"
   ],
   "requires": [],
   "optional": [

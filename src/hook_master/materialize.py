@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .consent import ConsentStore
 from .model import expand_uri, sha256_file
 from .registry import HookRegistry
 
@@ -26,7 +27,7 @@ class DeployResult:
     entry_id: str
     agent: str
     deploy_path: str
-    action: str  # "written" | "unchanged" | "skipped-no-canonical" | "skipped-missing-source"
+    action: str  # "written" | "unchanged" | "skipped-no-canonical" | "skipped-missing-source" | "pending-consent"
 
 
 def _canonical_path(entry: dict[str, Any]) -> Path | None:
@@ -65,10 +66,23 @@ def diff(registry: HookRegistry, *, entry_id: str | None = None) -> list[dict[st
     return results
 
 
-def deploy(registry: HookRegistry, *, entry_id: str | None = None, dry_run: bool = False) -> list[DeployResult]:
+def deploy(
+    registry: HookRegistry,
+    *,
+    entry_id: str | None = None,
+    dry_run: bool = False,
+    consent: ConsentStore | None = None,
+) -> list[DeployResult]:
     """Copy canonical -> deploy_path for every target of matching entries.
     One-way, always overwrites the deployed copy. `dry_run=True` reports what
-    WOULD happen without writing (used by the CLI's --dry-run flag)."""
+    WOULD happen without writing (used by the CLI's --dry-run flag).
+
+    HE2 (T-20260825-519184830): a `kind=hook` entry with a canonical source is
+    only ever materialized if `consent.is_consented(entry_id)` is true --
+    fail-closed, see consent.py's module docstring. A brand-new, never-granted
+    entry is reported as "pending-consent" and left untouched, never silently
+    skipped-as-if-nothing-happened."""
+    consent = consent or ConsentStore()
     entries = registry.load()["entries"]
     if entry_id:
         entries = [e for e in entries if e["id"] == entry_id]
@@ -82,6 +96,9 @@ def deploy(registry: HookRegistry, *, entry_id: str | None = None, dry_run: bool
             deployed = expand_uri(deploy_path)
             if canonical is None or not canonical.exists():
                 results.append(DeployResult(entry["id"], target["agent"], str(deployed), "skipped-missing-source"))
+                continue
+            if not consent.is_consented(entry["id"]):
+                results.append(DeployResult(entry["id"], target["agent"], str(deployed), "pending-consent"))
                 continue
             if deployed.exists() and sha256_file(deployed) == sha256_file(canonical):
                 results.append(DeployResult(entry["id"], target["agent"], str(deployed), "unchanged"))

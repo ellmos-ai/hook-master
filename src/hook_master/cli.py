@@ -5,8 +5,10 @@ import json
 import sys
 from pathlib import Path
 
+from . import doctor as doctor_module
 from . import materialize
 from .adapters.sync_hooks import export_aggregated_view, import_adoption_pointers
+from .consent import ConsentStore
 from .registry import HookRegistry, RegistryError
 
 
@@ -45,6 +47,18 @@ def parser() -> argparse.ArgumentParser:
     diff.add_argument("--id", dest="entry_id")
 
     commands.add_parser("status")
+
+    doctor = commands.add_parser("doctor")
+    doctor.add_argument("--id", dest="entry_id")
+    doctor.add_argument("--timing", action="store_true")
+
+    consent = commands.add_parser("consent")
+    consent.add_argument("id")
+    consent.add_argument("--by", default="user")
+    consent.add_argument("--note")
+
+    consent_status = commands.add_parser("consent-status")
+    consent_status.add_argument("id", nargs="?")
 
     migrate = commands.add_parser("import-sync")
     migrate.add_argument("--root", required=True)
@@ -90,6 +104,19 @@ def main(argv: list[str] | None = None) -> int:
             result = materialize.status(registry)
             _print(result)
             return 0 if result["ok"] else 1
+        elif args.command == "doctor":
+            result = doctor_module.run(registry, entry_id=args.entry_id, timing=args.timing)
+            _print(result)
+            return result["exit_code"]
+        elif args.command == "consent":
+            record = ConsentStore().grant(args.id, by=args.by, note=args.note)
+            _print(record.to_dict())
+        elif args.command == "consent-status":
+            store = ConsentStore()
+            if args.id:
+                _print({"id": args.id, "consented": store.is_consented(args.id)})
+            else:
+                _print({eid: rec.to_dict() for eid, rec in store.load().items()})
         elif args.command == "import-sync":
             result = import_adoption_pointers(registry, args.root, slot=args.slot, replace=not args.no_replace)
             _print({"registered": len(result["registered"]), "skipped": result["skipped"], "registry": str(registry.path)})

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from hook_master.consent import ConsentStore
 from hook_master.model import sha256_file
 from hook_master.registry import HookRegistry
 
@@ -37,3 +38,18 @@ def hook_entry(canonical_script, tmp_path):
 @pytest.fixture
 def registry(tmp_path):
     return HookRegistry(tmp_path / "registry.json")
+
+
+@pytest.fixture
+def consent_store(tmp_path):
+    return ConsentStore(tmp_path / "allowlist.json")
+
+
+@pytest.fixture
+def consented_store(tmp_path, hook_entry):
+    """Ein ConsentStore, in dem `hook_entry`'s id bereits freigegeben ist --
+    fuer Tests, die die Materialisierung selbst pruefen (nicht die
+    Consent-Gate) und deshalb nicht bei jedem `deploy()` extra granten wollen."""
+    store = ConsentStore(tmp_path / "allowlist.json")
+    store.grant(hook_entry["id"], by="test-fixture")
+    return store

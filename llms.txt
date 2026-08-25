@@ -6,8 +6,8 @@
 > scripts instead of text policies.
 
 Last-checked: 2026-08-25
-Version: 0.1.0
-Tests: 37 passed (pytest, tests/)
+Version: 0.2.0
+Tests: 57 passed (pytest, tests/)
 License: MIT
 Repository: https://github.com/ellmos-ai/hook-master
 Umbrella: https://github.com/open-bricks
