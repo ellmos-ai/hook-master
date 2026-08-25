@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hook-master"
+version = "0.1.0"
+description = "Local-first pointer registry and materialization for agent hooks"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Lukas G"}]
+dependencies = []
+keywords = [
+  "hooks",
+  "agent-tooling",
+  "local-first",
+  "registry",
+  "materialization",
+  "claude-code",
+  "codex",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/ellmos-ai/hook-master"
+Documentation = "https://github.com/ellmos-ai/hook-master#readme"
+Repository = "https://github.com/ellmos-ai/hook-master.git"
+Issues = "https://github.com/ellmos-ai/hook-master/issues"
+Changelog = "https://github.com/ellmos-ai/hook-master/blob/main/CHANGELOG.md"
+Security = "https://github.com/ellmos-ai/hook-master/blob/main/SECURITY.md"
+Umbrella = "https://github.com/open-bricks"
+
+[project.optional-dependencies]
+test = ["pytest>=8", "jsonschema>=4.23"]
+
+[project.scripts]
+hook-master = "hook_master.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+# library/ traegt kanonische Hook-Skripte unveraendert aus ~/.claude/hooks --
+# ihr Inhalt ist per SHA-256 in der Registry gepinnt (registriert am 2026-08-25);
+# ein ruff --fix wuerde die Bytes aendern und jeden bereits registrierten Hash
+# brechen. Bewusst nicht gelintet, nicht "aufgeraeumt".
+extend-exclude = ["library"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E402", "E722", "E741", "F841"]

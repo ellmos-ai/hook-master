@@ -1,0 +1,59 @@
+{
+  "schema": "ellmos.module.v2",
+  "id": "hook-master",
+  "version": "0.1.0",
+  "display_name": "hook-master",
+  "category": "control",
+  "kind": "library",
+  "status": "active",
+  "visibility": "public",
+  "provides": [
+    "hook.registry",
+    "hook.materialize",
+    "hook.verify",
+    "hook.import-sync"
+  ],
+  "requires": [],
+  "optional": [
+    "sync.yard"
+  ],
+  "conflicts": [],
+  "surfaces": [
+    "library",
+    "cli"
+  ],
+  "state": {
+    "ownership": "module",
+    "location": "user-home"
+  },
+  "boundaries": {
+    "network": "none",
+    "data": "user-local",
+    "platforms": [
+      "windows",
+      "macos",
+      "linux"
+    ]
+  },
+  "source_of_truth": {
+    "type": "git-repository",
+    "path": ".",
+    "repository": "https://github.com/ellmos-ai/hook-master"
+  },
+  "adapters": [
+    {
+      "type": "seam",
+      "id": "sync-hooks-v1",
+      "target": ".SYNC/hooks",
+      "status": "optional",
+      "note": "Imports existing kind=consumer pointers from adoption/<slot>.json and exports a non-authoritative aggregated view into registry/<slot>.json."
+    },
+    {
+      "type": "seam",
+      "id": "system-gap-optional",
+      "target": "system-gap-master",
+      "status": "optional",
+      "note": "Transport seam only; the local registry remains authoritative (same invariant as policy-registry, D-20260728-001)."
+    }
+  ]
+}
