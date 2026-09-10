@@ -5,9 +5,9 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-08-25
+Last-checked: 2026-09-10
 Version: 0.2.0
-Tests: 57 passed (pytest, tests/)
+Tests: 62 passed (pytest, tests/)
 License: MIT
 Repository: https://github.com/ellmos-ai/hook-master
 Umbrella: https://github.com/open-bricks
@@ -21,6 +21,10 @@ Umbrella: https://github.com/open-bricks
 - A one-way materialization step (`deploy`/`diff`/`status`) that copies the
   canonical script to wherever each agent's own config expects it —
   canonical -> deployed, never the reverse.
+- First-use consent allowlist (`~/.hook-master/allowlist.json`): fail-closed
+  gate preventing unauthorized or unreviewed hook scripts from being materialized.
+- Hook-Doctor diagnostics (`doctor [--id <id>] [--timing]`): checks hash match,
+  `py_compile` syntax integrity, mtime drift, and agent config JSON/TOML validity.
 - Fully standalone: works with zero network access and without
   system-gap-master installed. The optional `export-sync-view` command
   publishes a read-only metadata view into an existing `.SYNC/hooks/`
@@ -33,21 +37,39 @@ Umbrella: https://github.com/open-bricks
   are; hook-master only catalogues that they exist.
 - Not a general event bus. It does not execute hooks, intercept events, or
   wrap an agent's own hook-invocation mechanism.
-- Not (yet) an enforcement layer. The optional `doctor` field per entry
-  (exec_check/mtime_policy/allowlist) is schema-validated but not evaluated
-  by anything in this release — see SECURITY.md point 7.
+- Not an elevation layer. All hooks execute with the standard unprivileged
+  credentials of the host agent process.
 
-## Key files
+## Key files & directory structure
 
-- `src/hook_master/model.py` — entry schema + validation.
+- `src/hook_master/model.py` — entry schema & validation.
 - `src/hook_master/registry.py` — pointer store (register/get/search/verify).
-- `src/hook_master/materialize.py` — deploy/diff/status.
+- `src/hook_master/materialize.py` — deploy/diff/status materialization logic.
+- `src/hook_master/consent.py` — HE2 first-use consent allowlist engine.
+- `src/hook_master/doctor.py` — HE2 system & script health doctor.
+- `src/hook_master/cli.py` — CLI entrypoint and argument routing.
 - `src/hook_master/adapters/sync_hooks.py` — import/export bridge to
   `.SYNC/hooks/{adoption,registry}/<slot>.json`.
 - `src/hook_master/adapters/system_gap.py` — optional system-gap-master seam.
-- `library/` — canonical hook scripts this module carries (see README).
+- `library/` — canonical hook scripts this module carries.
+- `tests/` — Pytest test suite covering model, registry, materialization, consent, doctor, metadata.
+
+## CLI Usage Quick Reference
+
+```bash
+hook-master init                              # initialize registry
+hook-master register <entry.json>             # register hook pointer
+hook-master consent-status [<id>]             # show consent allowlist state
+hook-master consent <id>                      # grant deploy consent
+hook-master verify                            # verify canonical hashes
+hook-master deploy [--dry-run]                # one-way copy canonical -> deploy_path
+hook-master diff                              # inspect sync state / drift
+hook-master status                            # verify + diff combined
+hook-master doctor [--timing]                 # deep diagnostics & compile benchmarks
+```
 
 ## Search phrases an LLM might use to find this
 
 hook registry, hook materialization, claude code hooks module, codex hooks
-cross-path, agent hook deployment, hook pointer registry, ellmos hook-master.
+cross-path, agent hook deployment, hook pointer registry, ellmos hook-master,
+hook doctor, hook consent gate, fail-closed hook deployment.

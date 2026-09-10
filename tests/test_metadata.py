@@ -55,3 +55,49 @@ def test_library_scripts_match_registered_hashes():
         assert script.stat().st_size > 0, f"leere Datei: {script}"
         # Sanity: die Datei muss valides Python sein.
         compile(script.read_text(encoding="utf-8"), str(script), "exec")
+
+def test_readme_language_switcher_and_links():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    assert "[English](README.md)" in en_text and "[Deutsch](README_de.md)" in en_text
+    assert "[English](README.md)" in de_text and "[Deutsch](README_de.md)" in de_text
+
+
+def test_readme_badges_presence():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    badges = ["tests-", "version-0.2.0", "python-", "Local--First", "consent%20gate", "ruff", "open--bricks", "llms.txt"]
+    for badge in badges:
+        assert badge in en_text, f"Badge {badge} missing in README.md"
+        assert badge in de_text, f"Badge {badge} missing in README_de.md"
+
+
+def test_readme_mermaid_diagrams_present():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    for doc in [en_text, de_text]:
+        assert "```mermaid\ngraph TD" in doc or "```mermaid\r\ngraph TD" in doc
+        assert "sequenceDiagram" in doc
+        assert "autonumber" in doc
+
+
+def test_sibling_tools_matrix_parity():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    siblings = [
+        "policy-registry", "memoryhooker", "workflowhooker",
+        "system-gap-master", "source-resolver", "lock-master",
+        "ticket-master", "DevCenter", "CodeBox", "open-bricks"
+    ]
+    for sibling in siblings:
+        assert sibling in en_text, f"Sibling {sibling} missing in README.md"
+        assert sibling in de_text, f"Sibling {sibling} missing in README_de.md"
+
+
+def test_llms_txt_metadata_and_sections():
+    llms = (REPO / "llms.txt").read_text(encoding="utf-8")
+    assert "Last-checked: 2026-09-10" in llms
+    assert "Version: 0.2.0" in llms
+    assert "https://github.com/ellmos-ai/hook-master" in llms
+    assert "## Key files" in llms
+    assert "## CLI Usage Quick Reference" in llms

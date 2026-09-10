@@ -1,6 +1,13 @@
 # Changelog
 
-## [0.2.0] - 2026-08-25
+## [0.2.0] - 2026-08-25 (Ergänzt 2026-09-10)
+
+### Pfad B Discoverability, Mermaid-Architektur & Metadaten (2026-09-10)
+- **Mermaid-Architektur & Sequenzdiagramm:** Interaktive Visualisierungen für kanonische Speicherung, Registry-Pointers, Fail-Closed Consent-Gate (HE2), Doctor-Diagnostik und Einweg-Materialisierung zu Ziel-Agenten (Claude Code, Codex, Antigravity, Kimi).
+- **Zweisprachige Nutzerführung (DE/EN):** Synchronisierte READMEs mit Anker-Inhaltsverzeichnis, funktionierenden Badge-Links und konsistentem Sprachwechsler.
+- **Ökosystem-Matrix:** Strukturierte Verknüpfung der verwandten Module (`policy-registry`, `memoryhooker`, `workflowhooker`, `system-gap-master`, `source-resolver`, `lock-master`, `ticket-master`, `DevCenter`, `CodeBox`, `open-bricks`).
+- **AI-Discovery:** Aktualisierung von `llms.txt` auf Prüfstand 2026-09-10 mit detaillierter Dateistruktur und CLI-Befehlsübersicht.
+- **Metadaten-Vertragstests:** Erweiterung von `tests/test_metadata.py` um Diagramm-, Badge- und Sprachparitätstests.
 
 HE2 (T-20260825-519184830, User-Entscheid HE2=ja, USMC-Notiz 923): Hook-Doctor
 + Erstnutzungs-Consent-Allowlist. Konzept-Nachbau nach dem Hermes-Agent-Muster
