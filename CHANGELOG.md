@@ -15,6 +15,15 @@
 - **AI Agent Context & Discovery Parity:** Updated `llms.txt` with timestamp `2026-09-22`, updated test baseline, and cross-references to `NOTICE` and `THIRD_PARTY_LICENSES.md`.
 - **Extended Contract Verification Suite:** Expanded `tests/test_metadata.py` to assert house files existence, NOTICE integrity, SBOM structure, CI workflow hardening, .gitignore coverage, and legal disclaimers.
 
+### Notaus-Aufhebung verlustfrei (2026-09-20)
+- **Notaus-Aufhebung verlustfrei:** `token_budget_guard.py` übernimmt die
+  Parkvermerke `paused_goals` und `paused_agents` bei automatischen
+  State-Übergängen und meldet eine ausstehende Aufhebung. Der
+  `notaus_wake_check.py` macht erhaltene Parkkreise beim nächsten Wecken
+  sichtbar, statt sie still zu übergehen.
+- **Tests:** Regressionstests decken den automatischen Rücklauf mit
+  pausierten Goals/Workern und die Wake-Meldung ab.
+
 ## [0.2.0] - 2026-08-25 (Ergänzt 2026-09-10)
 
 ### Pfad B Discoverability, Mermaid-Architektur & Metadaten (2026-09-10)
