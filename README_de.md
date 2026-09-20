@@ -1,3 +1,6 @@
+<img src="assets/banner.png" width="100%" alt="hook-master banner">
+<!-- alternate banner: assets/banner-b.png (swap on occasion) -->
+
 [![Tests](https://img.shields.io/badge/tests-62%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt)
 
 # hook-master
