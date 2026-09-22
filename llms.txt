@@ -5,12 +5,16 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-09-10
+Last-checked: 2026-09-22
 Version: 0.2.0
-Tests: 62 passed (pytest, tests/)
+Tests: 73 passed (pytest, tests/)
 License: MIT
+Attribution: NOTICE
+Transparency: THIRD_PARTY_LICENSES.md (Level 1 SBOM, zero runtime dependencies, 100% PSFL-2.0 stdlib)
 Repository: https://github.com/ellmos-ai/hook-master
 Umbrella: https://github.com/open-bricks
+Security-SLA: 48h response, 5-day triage (security@open-bricks.org, security@ellmos.ai)
+Statutory-Notice: § 521 BGB German statutory liability limitation
 
 ## What this is
 
@@ -38,10 +42,14 @@ Umbrella: https://github.com/open-bricks
 - Not a general event bus. It does not execute hooks, intercept events, or
   wrap an agent's own hook-invocation mechanism.
 - Not an elevation layer. All hooks execute with the standard unprivileged
-  credentials of the host agent process.
+  credentials of the host agent process (RunAsInvoker mode).
 
 ## Key files & directory structure
 
+- `NOTICE` — canonical open-source attribution notice.
+- `THIRD_PARTY_LICENSES.md` — Level 1 SBOM, license audit & 10 architecture invariants.
+- `MARKETING-LOG.txt` — positioning, personas, search queries & governance invariants.
+- `.github/workflows/` — hardened CI matrix, stale lifecycle triage, and welcome onboarding.
 - `src/hook_master/model.py` — entry schema & validation.
 - `src/hook_master/registry.py` — pointer store (register/get/search/verify).
 - `src/hook_master/materialize.py` — deploy/diff/status materialization logic.

@@ -35,14 +35,22 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]
+
 [project.urls]
 Homepage = "https://github.com/ellmos-ai/hook-master"
 Documentation = "https://github.com/ellmos-ai/hook-master#readme"
 Repository = "https://github.com/ellmos-ai/hook-master.git"
 Issues = "https://github.com/ellmos-ai/hook-master/issues"
+"Bug Tracker" = "https://github.com/ellmos-ai/hook-master/issues"
 Changelog = "https://github.com/ellmos-ai/hook-master/blob/main/CHANGELOG.md"
 Security = "https://github.com/ellmos-ai/hook-master/blob/main/SECURITY.md"
+"Third-Party Licenses" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"
+"Marketing Log" = "https://github.com/ellmos-ai/hook-master/blob/main/MARKETING-LOG.txt"
+"Parent Organization" = "https://github.com/ellmos-ai"
 Umbrella = "https://github.com/open-bricks"
+"LLM Ready" = "https://github.com/ellmos-ai/hook-master/blob/main/llms.txt"
+Notice = "https://github.com/ellmos-ai/hook-master/blob/main/NOTICE"
 
 [project.optional-dependencies]
 test = ["pytest>=8", "jsonschema>=4.23"]
@@ -54,9 +62,11 @@ hook-master = "hook_master.cli:main"
 where = ["src"]
 
 [tool.pytest.ini_options]
+minversion = "7.0"
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-ra -q"
 pythonpath = ["src"]
+norecursedirs = [".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv", ".ruff_cache", ".hypothesis"]
 
 [tool.ruff]
 target-version = "py310"

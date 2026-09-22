@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-62%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt)
+[![Tests](https://img.shields.io/badge/tests-73%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt)
 
 # hook-master
 
@@ -26,7 +26,7 @@ Lokale, pointer-basierte Registry mit deterministischer Einweg-Materialisierung 
 - [Optionaler Transport, nie erforderlich](#optionaler-transport-nie-erforderlich)
 - [Geschwisterwerkzeuge & Ökosystem](#geschwisterwerkzeuge--ökosystem)
 - [Sicherheitsarchitektur](#sicherheit)
-- [Lizenz](#lizenz)
+- [Gesetzlicher Hinweis, Haftungsbeschränkung & Lizenz (§ 521 BGB)](#statutory-notice-liability-limitation--license--521-bgb)
 
 ---
 
@@ -245,6 +245,13 @@ Siehe [SECURITY.md](SECURITY.md) — local-first, Zero-Egress, reine Zeiger-Regi
 
 ---
 
-## Lizenz
+<a id="statutory-notice-liability-limitation--license--521-bgb"></a><a id="gesetzlicher-hinweis-haftungsbeschränkung--lizenz--521-bgb"></a><a id="license"></a><a id="lizenz"></a><a id="-license"></a><a id="-lizenz"></a>
+## 📄 Gesetzlicher Hinweis, Haftungsbeschränkung & Lizenz (§ 521 BGB)
 
-MIT — siehe [LICENSE](LICENSE).
+### Open-Source-Lizenz
+Diese Software ist unter den Bedingungen der [MIT License](LICENSE) lizenziert.
+Kanonische Urheber- und Ökosystem-Zuordnungen sind in [`NOTICE`](NOTICE) deklariert.
+Detaillierte Level-1-SBOM- und Abhängigkeits-Transparenzangaben finden sich in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+
+### Gesetzlicher Hinweis & Haftungsbeschränkung (§ 521 BGB Gefälligkeitsrecht)
+Die Bereitstellung dieser Software sowie der dazugehörigen Dokumentation erfolgt unentgeltlich. Gemäß dem gesetzlichen Haftungsregime des deutschen Gefälligkeitsrechts (**§ 521 BGB** — *Haftung des Schenkers*) ist die Haftung für Sach- und Rechtsmängel ausdrücklich auf **Vorsatz** und **grobe Fahrlässigkeit** beschränkt. Eine weitergehende Haftung oder Gewährleistung für einfache Fahrlässigkeit ist im gesetzlich zulässigen Rahmen vollständig ausgeschlossen.

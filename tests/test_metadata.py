@@ -9,7 +9,11 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def test_required_house_files_exist():
-    for name in ["README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE", "llms.txt", "ellmos-module.v2.json", "pyproject.toml"]:
+    for name in [
+        "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
+        "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
+        "NOTICE", "THIRD_PARTY_LICENSES.md", "MARKETING-LOG.txt",
+    ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
 
@@ -66,7 +70,10 @@ def test_readme_language_switcher_and_links():
 def test_readme_badges_presence():
     en_text = (REPO / "README.md").read_text(encoding="utf-8")
     de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
-    badges = ["tests-", "version-0.2.0", "python-", "Local--First", "consent%20gate", "ruff", "open--bricks", "llms.txt"]
+    badges = [
+        "tests-", "version-0.2.0", "python-", "Local--First",
+        "consent%20gate", "Attribution-NOTICE-blue.svg", "ruff", "open--bricks", "llms.txt"
+    ]
     for badge in badges:
         assert badge in en_text, f"Badge {badge} missing in README.md"
         assert badge in de_text, f"Badge {badge} missing in README_de.md"
@@ -96,8 +103,99 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert "Last-checked: 2026-09-10" in llms
+    assert "Last-checked: 2026-09-22" in llms
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
     assert "## CLI Usage Quick Reference" in llms
+    assert "NOTICE" in llms
+    assert "THIRD_PARTY_LICENSES.md" in llms
+    assert "521 BGB" in llms
+
+
+def test_notice_file_content():
+    notice = (REPO / "NOTICE").read_text(encoding="utf-8")
+    assert "hook-master" in notice
+    assert "Lukas Geiger" in notice
+    assert "ellmos-ai" in notice
+    assert "open-bricks" in notice
+    assert "MIT License" in notice
+    assert "THIRD_PARTY_LICENSES.md" in notice
+
+
+def test_third_party_licenses_level1_sbom():
+    sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
+    assert "Level 1 SBOM" in sbom
+    assert "INV-LOCAL-01" in sbom
+    assert "INV-SLA-10" in sbom
+    assert "RunAsInvoker" in sbom
+    assert "Python Standard Library" in sbom
+    assert "PSFL-2.0" in sbom
+    assert "Zero-Egress" in sbom
+
+
+def test_ci_workflows_hardened():
+    workflows_dir = REPO / ".github" / "workflows"
+    assert (workflows_dir / "ci.yml").is_file()
+    assert (workflows_dir / "stale.yml").is_file()
+    assert (workflows_dir / "welcome.yml").is_file()
+
+    for wf_name in ["ci.yml", "stale.yml", "welcome.yml"]:
+        content = (workflows_dir / wf_name).read_text(encoding="utf-8")
+        assert "timeout-minutes:" in content, f"timeout-minutes missing in {wf_name}"
+        assert "concurrency:" in content, f"concurrency missing in {wf_name}"
+        assert "cancel-in-progress: true" in content, f"cancel-in-progress missing in {wf_name}"
+        assert "permissions:" in content, f"permissions missing in {wf_name}"
+
+    ci_content = (workflows_dir / "ci.yml").read_text(encoding="utf-8")
+    assert "ubuntu-latest" in ci_content
+    assert "windows-latest" in ci_content
+    assert "macos-latest" in ci_content
+    assert '"3.10"' in ci_content and '"3.13"' in ci_content
+
+
+def test_gitignore_multihost_and_lock_defense():
+    gi = (REPO / ".gitignore").read_text(encoding="utf-8")
+    for pattern in ["*conflicted copy*", "*-WORKSTATION*", "LOCK", "LOCK.*", ".automation-lock", "uv.lock", ".hypothesis/"]:
+        assert pattern in gi, f"pattern {pattern} missing in .gitignore"
+
+
+def test_pyproject_pep621_hardening_and_version_freeze():
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'version = "0.2.0"' in pyproject, "Version must remain frozen at 0.2.0"
+    assert 'license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]' in pyproject
+    assert 'Notice = "https://github.com/ellmos-ai/hook-master/blob/main/NOTICE"' in pyproject
+    assert '"Third-Party Licenses" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"' in pyproject
+    assert 'minversion = "7.0"' in pyproject
+    assert "norecursedirs" in pyproject
+
+
+def test_statutory_notice_and_security_sla():
+    readme_en = (REPO / "README.md").read_text(encoding="utf-8")
+    readme_de = (REPO / "README_de.md").read_text(encoding="utf-8")
+    security = (REPO / "SECURITY.md").read_text(encoding="utf-8")
+
+    assert "521 BGB" in readme_en
+    assert "521 BGB" in readme_de
+    assert "521 BGB" in security
+
+    assert "48" in security
+    assert "5" in security  # 5 days / 5 Werktagen
+    assert "security@open-bricks.org" in security
+    assert "security@ellmos.ai" in security
+
+
+def test_changelog_has_unreleased_pfad_a():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "Pfad A" in changelog
+    assert "Level 1 SBOM" in changelog
+    assert "## [0.2.0]" in changelog
+
+
+def test_marketing_log_baseline():
+    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "MARKETING-LOG: hook-master" in mlog
+    assert "INV-LOCAL-01" in mlog
+    assert "INV-SLA-10" in mlog
+    assert "Pfad A" in mlog

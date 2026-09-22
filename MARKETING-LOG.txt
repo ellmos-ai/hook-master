@@ -1,0 +1,120 @@
+# MARKETING-LOG: hook-master
+Date: 2026-09-22
+Operator: Antigravity / Gemini (via GITHUBBOT Pfad A)
+Target Repo: ellmos-ai/hook-master
+Canonical Path: C:\_Local_DEV\repos\hook-master
+Version: 0.2.0
+
+================================================================================
+1. REPOSITORY AUDIT & DISCOVERABILITY BASELINE
+================================================================================
+- Organization: ellmos-ai
+- Ecosystem: open-bricks (umbrella)
+- Target Audience: Multi-agent AI developers, LLM workflow engineers, autonomous agent fleet operators, system administrators, security officers
+- Core Positioning: A local-first pointer registry and one-way materialization engine for AI agent hooks (Claude Code, Codex, Kimi, Antigravity).
+- Distinct Value Proposition: Decouples executable hook scripts from private agent configuration directories. Stores canonical scripts in a central, SHA-256-pinned library, enforces fail-closed first-use consent allowlists, provides diagnostic doctor health checks, and materializes hooks strictly one-way without cloud or network requirements.
+- Sibling Ecosystem Integration: Architectural companion to `policy-registry` (static rule pointers) and execution sibling to `memoryhooker` and `workflowhooker` (active event interception consumers).
+
+================================================================================
+2. TARGET PERSONAS & USER JOURNEYS
+================================================================================
+1. Multi-Agent System Architects & Fleet Engineers
+   - Needs: Manage shared hook scripts across diverse agent frameworks (Claude Code, Codex, Kimi, Antigravity) without directory coupling or path confusion.
+   - Pain Points: Agent A's configuration file hard-points to a script in Agent B's private config directory (e.g. Codex pointing at `~/.claude/hooks/guards.py`), causing broken paths across multi-machine environments.
+   - hook-master Solution: Canonical source scripts live in `library/` or custom repositories, mapped via pointer entries to each agent's native configuration path, verified by SHA-256 digests.
+
+2. Autonomous AI Agent Operators & Security Officers
+   - Needs: Enforce strict trust boundaries and explicit consent before executable code is placed where an agent runtime will automatically execute it.
+   - Pain Points: Inadvertent script tampering or uncontrolled automatic hook deployment can lead to unauthorized code execution during tool calls or prompt submissions.
+   - hook-master Solution: Fail-closed first-use consent allowlist (`~/.hook-master/allowlist.json`), one-way copy direction (`canonical -> deployed`, never reverse), and deep syntax verification (`py_compile`).
+
+3. Infrastructure & DevOps Engineers
+   - Needs: Inspect drift between canonical hook definitions and deployed agent copies, run automatic integrity diagnostics, and benchmark hook execution overhead.
+   - Pain Points: Deployed scripts get modified ad-hoc on individual machines, drifting silently from canonical source control.
+   - hook-master Solution: `hook-master diff` and `hook-master doctor [--timing]` report hash divergence, syntax errors, missing target config files, and execution timing benchmarks.
+
+4. Privacy, Compliance & Open-Source Governance Teams
+   - Needs: Verify zero external network egress, unprivileged execution, permissive licensing, and enforceable security response SLAs.
+   - Pain Points: Complex agent toolchains often introduce opaque telemetry or restrictive copyleft dependencies.
+   - hook-master Solution: 100% Local-First / Zero-Egress, unprivileged `RunAsInvoker` mode, clean Level 1 SBOM in `THIRD_PARTY_LICENSES.md`, and binding 48h response / 5-day triage SLAs.
+
+================================================================================
+3. HIGH-INTENT SEARCH QUERIES (BILINGUAL EN & DE)
+================================================================================
+English (EN):
+- `local-first agent hook registry`
+- `claude code hooks deployment tool`
+- `codex cross path hook management`
+- `AI agent hook materialization python`
+- `fail-closed hook consent allowlist`
+- `agent hook doctor diagnostics`
+- `multi-agent hook pointer repository`
+- `zero-egress hook manager`
+- `hook-master ellmos`
+- `one-way hook script deployment`
+
+German (DE):
+- `Lokale KI-Agenten Hook Registry`
+- `Claude Code Hooks Bereitstellung`
+- `Codex Hooks Verwaltung Python`
+- `Fail-Closed Hook Freigabe Allowlist`
+- `Agenten Hook Integritätsprüfung Doctor`
+- `Zeiger Registry für ausführbare Skripte`
+- `Zero-Egress Hook Manager Multi-Agent`
+- `Einweg Materialisierung Hook Skripte`
+- `hook-master ellmos ai`
+- `Multi-Agenten Hook Synchronisation`
+
+================================================================================
+4. COMPETITIVE DIFFERENTIATION MATRIX
+================================================================================
+| Dimension | hook-master | Symlinks / Hardlinks | Direct Config Editing | Cloud Event Buses |
+|---|---|---|---|---|
+| **Architecture** | Pointer Registry + One-Way Copy | Filesystem pointers | Manual per-agent files | Central SaaS message broker |
+| **Trust Boundary** | Executable code treated as distinct trust class | Shared mutable inode | Uncontrolled direct edits | Remote network execution |
+| **Consent Gate** | Fail-closed first-use allowlist | None (immediate activation) | None (instantaneous) | Cloud IAM / API keys |
+| **Integrity & Drift** | SHA-256 hash parity & mtime checks | Unchecked symlink targets | Silent unversioned drift | Cloud audit logs |
+| **Diagnostic Doctor** | Built-in syntax & config parser doctor | None | None | Cloud monitoring dashboards |
+| **Offline Resilience** | 100% Local-First / Zero-Egress | Local filesystem only | Local filesystem only | Requires continuous connectivity |
+| **Dependencies** | Zero external runtime dependencies (100% stdlib) | OS native | OS native | Heavy SDKs and network daemons |
+| **Privileges** | Unprivileged user-mode (`RunAsInvoker`) | OS permissions | OS permissions | Cloud API tokens |
+
+================================================================================
+5. GOVERNANCE & RUNTIME INVARIANTS (INV-LOCAL-01 TO INV-SLA-10)
+================================================================================
+- INV-LOCAL-01: 100% Local-First & Zero Egress (operates on local filesystems; zero network telemetry or exfiltration)
+- INV-SEC-02: Non-Elevation & User Mode (unprivileged RunAsInvoker execution without root/administrator elevation)
+- INV-PTR-03: Pointer-Only Registry Architecture (stores metadata and file paths; never embeds executable code inside registry)
+- INV-EXEC-04: Executable Code Trust Class Separation (explicit hash validation; drift is reported, never silently accepted)
+- INV-MAT-05: One-Way Materialization Invariant (canonical source copies to deploy target, never the reverse)
+- INV-CONSENT-06: Fail-Closed Consent Allowlist (unconsented entries are blocked from deployment by default)
+- INV-DOC-07: Comprehensive Hook-Doctor Diagnostics (verifies hash, syntax, materialization state, mtime, and config validity)
+- INV-TRANS-08: Optional Transport Independence (operates standalone without system-gap-master or external dependencies)
+- INV-LIC-09: 100% Permissive Audited Dependency Stack (clean MIT/PSFL stack audited in THIRD_PARTY_LICENSES.md)
+- INV-SLA-10: Cryptographic Parity & Dual Security SLA (48-hour response and 5-day triage commitment)
+
+================================================================================
+6. IMPLEMENTED PFAD A REPOSITORY HYGIENE & GOVERNANCE (2026-09-22)
+================================================================================
+[x] CI Workflow Hardening (.github/workflows/):
+    - `ci.yml`: Multi-OS test matrix (ubuntu, windows, macos) across Python 3.10-3.13 with 15-minute runaway timeout, concurrency cancel-in-progress, least-privilege permissions, and bytecode validation.
+    - `stale.yml`: Daily lifecycle triage via actions/stale@v9 with 10-minute timeout and explicit permissions.
+    - `welcome.yml`: Contributor first-interaction onboarding via actions/first-interaction@v3 with 5-minute timeout.
+[x] Multi-Host Cloud-Sync & Lock Defense (.gitignore):
+    - Hardened against cloud conflict copies (*conflicted copy*, * (Kopie)*, *-WORKSTATION*, *-ASUS*, *-LAPTOP*, *.orig, *.rej).
+    - Hardened against canonical multi-agent locks (LOCK, LOCK.*, LOCK*.txt, LOCK.permissions.json, .automation-lock).
+    - Excluded test/build/coverage caches (.hypothesis, .turbo, .nyc_output, .pytest_cache, .ruff_cache, .coverage*).
+[x] Open-Source Attribution Notice (NOTICE):
+    - Canonical root attribution notice referencing Lukas Geiger, ellmos-ai, and open-bricks umbrella.
+[x] Level 1 SBOM Transparency Audit (THIRD_PARTY_LICENSES.md):
+    - Zero runtime dependencies (100% Python Standard Library PSFL-2.0), permissive dev tooling, RunAsInvoker non-elevation certification.
+[x] PEP 621 Standard Packaging & Pytest Hardening (pyproject.toml):
+    - Configured standard license-files (LICENSE, NOTICE, THIRD_PARTY_LICENSES.md).
+    - Extended project.urls with Notice and Third-Party Licenses endpoints.
+    - Hardened pytest.ini_options with minversion = "7.0", norecursedirs, and preserved frozen version 0.2.0 (T-20260920-167562623).
+[x] Bilingual Documentation & Legal Governance (README.md, README_de.md, SECURITY.md):
+    - Added Attribution NOTICE badge, German statutory liability disclaimer (§ 521 BGB Gefälligkeitsrecht), and dual 48h/5d security SLAs.
+[x] AI Agent Context Update (llms.txt):
+    - Synchronized Last-checked timestamp (2026-09-22), updated test baseline, added NOTICE and SBOM references.
+[x] Automated Contract Test Expansion (tests/test_metadata.py):
+    - Added comprehensive contract tests validating house files, NOTICE, SBOM, CI workflows, .gitignore defense, PEP 621 URLs, and version freeze.

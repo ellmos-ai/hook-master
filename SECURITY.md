@@ -20,12 +20,17 @@
 
 If you discover a potential security vulnerability or integrity flaw in `hook-master`, please report it privately:
 
+- **Umbrella Security Contact**: `security@open-bricks.org`
 - **Primary Security Contact**: `security@ellmos.ai`
-- **Umbrella Security Contact**: `lukas@open-bricks.org`
-- **Maintainer Direct**: `support@lukasgeiger.com`
+- **Maintainer Direct**: `support@lukasgeiger.com` | `lukas@open-bricks.org`
 - **GitHub Security Advisories**: [Open Private Security Advisory](https://github.com/ellmos-ai/hook-master/security/advisories)
 
-Please do not disclose security issues publicly via GitHub Issues or discussions until a fix has been released. We acknowledge receipt of security reports within 24 to 48 hours and coordinate release remediation promptly.
+**Response & Triage SLA:** We acknowledge receipt of security vulnerability reports within 48 hours and provide an initial triage assessment within 5 business days. Coordinated security disclosures and patches are published following responsible disclosure practices.
+
+Please do not disclose security issues publicly via GitHub Issues or discussions until a fix has been released.
+
+### Statutory Notice & Liability Limitation (§ 521 BGB Gefälligkeitsrecht)
+The provision of this software and its associated documentation is gratuitous (unentgeltliche Bereitstellung). In accordance with the statutory liability regime under German Civil Law governing gratuitous services (**§ 521 BGB** — *Haftung des Schenkers*), liability for any defects of quality or title (Sach- und Rechtsmängel) is strictly limited to cases of intentional misconduct (**Vorsatz**) and gross negligence (**grobe Fahrlässigkeit**). Any broader statutory warranty or tortious liability for slight negligence is expressly excluded to the fullest extent permitted by applicable law.
 
 ---
 
@@ -45,9 +50,14 @@ Please do not disclose security issues publicly via GitHub Issues or discussions
 
 Wenn Sie eine potenzielle Sicherheitslücke oder einen Integritätsfehler in `hook-master` finden, melden Sie diesen bitte vertraulich:
 
+- **Dachverband-Sicherheitskontakt**: `security@open-bricks.org`
 - **Primärer Sicherheitskontakt**: `security@ellmos.ai`
-- **Dachverband-Sicherheitskontakt**: `lukas@open-bricks.org`
-- **Entwickler-Direktkontakt**: `support@lukasgeiger.com`
+- **Entwickler-Direktkontakt**: `support@lukasgeiger.com` | `lukas@open-bricks.org`
 - **GitHub Security Advisories**: [Private Sicherheitsmeldung einreichen](https://github.com/ellmos-ai/hook-master/security/advisories)
 
-Bitte eröffnen Sie keine öffentlichen GitHub-Issues für Sicherheitsvorfälle. Wir bestätigen den Eingang von Hinweisen innerhalb von 24 bis 48 Stunden und koordinieren die Behebung umgehend.
+**Reaktions- & Triage-SLA:** Wir bestätigen den Eingang von Sicherheitsmeldungen innerhalb von 48 Stunden und liefern eine fundierte erste Triage-Einschätzung innerhalb von 5 Werktagen. Koordinierte Sicherheitskorrekturen und Patches werden nach den Grundsätzen des Responsible Disclosure veröffentlicht.
+
+Bitte eröffnen Sie keine öffentlichen GitHub-Issues für Sicherheitsvorfälle.
+
+### Gesetzlicher Hinweis & Haftungsbeschränkung (§ 521 BGB Gefälligkeitsrecht)
+Die Bereitstellung dieser Software sowie der dazugehörigen Dokumentation erfolgt unentgeltlich. Gemäß dem gesetzlichen Haftungsregime des deutschen Gefälligkeitsrechts (**§ 521 BGB** — *Haftung des Schenkers*) ist die Haftung für Sach- und Rechtsmängel ausdrücklich auf **Vorsatz** und **grobe Fahrlässigkeit** beschränkt. Eine weitergehende Haftung oder Gewährleistung für einfache Fahrlässigkeit ist im gesetzlich zulässigen Rahmen vollständig ausgeschlossen.

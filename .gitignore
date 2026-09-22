@@ -1,7 +1,77 @@
+# Internal working notes & locks
+_intern/
+LOCK
+LOCK*.txt
+LOCK.*
+LOCK.permissions.json
+LOCK.user.*
+LOCK.until.*
+LOCK.condition.*
+*.lock
+.automation-lock
+uv.lock
+!package-lock.json
+
+# Multi-Host Cloud-Sync conflict copies
+*.sync-conflict-*
+*.conflict
+*-CONFLIT-*
+*-conflict-*
+*conflicted copy*
+*-WORKSTATION*
+*-WORKSTATION-LG*
+*-ASUS*
+*-ASUS-GEI*
+*-LAPTOP*
+*-Mac Studio*
+*-MacBook*
+* (kopie)*
+* (copy)*
+* (Kopie)*
+* (Copy)*
+*.sync-temp-*
+*.orig
+*.rej
+
+# Python packaging & virtual environments
 __pycache__/
 *.pyc
-.pytest_cache/
-.ruff_cache/
-*.egg-info/
+*.pyo
+.venv/
+venv/
 build/
 dist/
+*.egg-info/
+
+# Test, linter & coverage caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.wheel-smoke/
+.tox/
+.mypy_cache/
+.hypothesis/
+.turbo/
+.nyc_output/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*~
+*.log
+
+# Local configuration and private data
+.env
+.env.*
+*.db
+*.sqlite
+*.sqlite3
+
+# OS & IDE
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/

@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Technical Hygiene, CI Lifecycle Workflows, Lock Defense & Level 1 SBOM Audit (2026-09-22) [Pfad A]
+- **Multi-OS CI Matrix & Lifecycle Workflows:** Added hardened GitHub Actions workflows:
+  - `ci.yml`: Multi-OS (`ubuntu-latest`, `windows-latest`, `macos-latest`) and multi-version Python (`3.10`, `3.11`, `3.12`, `3.13`) test and lint matrix with a 15-minute runaway timeout guardrail, concurrency cancellation, and compileall bytecode verification.
+  - `stale.yml`: Automated daily triage for inactive issues and PRs (30 days stale, 7 days close) with 10-minute timeout.
+  - `welcome.yml`: Contributor first-interaction onboarding with 5-minute timeout and least-privilege permissions.
+- **Multi-Host Cloud-Sync & Concurrency Lock Defense:** Hardened `.gitignore` against cloud sync conflict patterns (`*conflicted copy*`, `*-WORKSTATION*`, `*-ASUS*`, `*-LAPTOP*`, `*.orig`, `*.rej`), canonical multi-agent lock artifacts (`LOCK`, `LOCK.*`, `LOCK*.txt`, `.automation-lock`), and transient test/build caches (`.hypothesis/`, `.turbo/`, `.nyc_output/`, `uv.lock`).
+- **Attribution & Transparency Notice:** Added canonical root `NOTICE` file attributing Lukas Geiger, `ellmos-ai`, and the `open-bricks` open-source umbrella.
+- **Level 1 SBOM Transparency & Governance Invariants:** Added `THIRD_PARTY_LICENSES.md` documenting zero external runtime dependencies (100% Python Standard Library PSFL-2.0), permissive testing/build tooling, unprivileged `RunAsInvoker` non-elevation certification, and 10 architecture invariants (`INV-LOCAL-01` to `INV-SLA-10`).
+- **PEP 621 Standard Packaging & Pytest Hardening:** Updated `pyproject.toml` with `license-files` declaration, expanded `project.urls` (Notice, Third-Party Licenses, Bug Tracker, Marketing Log, LLM Ready), and hardened `pytest.ini_options` (`minversion = "7.0"`, `norecursedirs`). Version strictly preserved at `0.2.0` (T-20260920-167562623).
+- **Statutory Liability Disclaimer & Security SLAs:** Standardized German statutory liability disclaimer (§ 521 BGB Gefälligkeitsrecht) and binding dual security SLAs (48-hour response, 5-day triage) across `README.md`, `README_de.md`, and `SECURITY.md`.
+- **AI Agent Context & Discovery Parity:** Updated `llms.txt` with timestamp `2026-09-22`, updated test baseline, and cross-references to `NOTICE` and `THIRD_PARTY_LICENSES.md`.
+- **Extended Contract Verification Suite:** Expanded `tests/test_metadata.py` to assert house files existence, NOTICE integrity, SBOM structure, CI workflow hardening, .gitignore coverage, and legal disclaimers.
+
 ## [0.2.0] - 2026-08-25 (Ergänzt 2026-09-10)
 
 ### Pfad B Discoverability, Mermaid-Architektur & Metadaten (2026-09-10)
