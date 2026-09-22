@@ -48,19 +48,83 @@ def _check_config_file(path: Path) -> dict[str, Any]:
     except OSError as exc:
         return {"path": str(path), "state": "unreadable", "error": str(exc)}
     suffix = path.suffix.lower()
+    parsed_data = None
     try:
         if suffix == ".json":
-            json.loads(text)
+            parsed_data = json.loads(text)
         elif suffix == ".toml":
             try:
                 import tomllib  # Python 3.11+
             except ModuleNotFoundError:
                 import tomli as tomllib  # type: ignore[no-redef]
-            tomllib.loads(text)
-        # anderes Format (z.B. .sh) -- nur Existenz+Lesbarkeit zaehlen hier.
+            parsed_data = tomllib.loads(text)
+        if parsed_data is not None:
+            invariant_errors = _scan_hooks_for_invariants(parsed_data)
+            if invariant_errors:
+                return {
+                    "path": str(path),
+                    "state": "invalid-hook-invariants",
+                    "error": "; ".join(invariant_errors),
+                }
         return {"path": str(path), "state": "valid"}
     except Exception as exc:  # noqa: BLE001 -- Parser-Fehler jeder Art melden, nicht crashen
         return {"path": str(path), "state": "invalid", "error": str(exc)}
+
+
+def _scan_hooks_for_invariants(data: Any) -> list[str]:
+    from .providers.invariants import (
+        InterpreterAliasError,
+        InvalidTimeoutError,
+        extract_executable_candidate,
+        validate_interpreter,
+        validate_timeout,
+    )
+
+    errors = []
+    SHELL_BUILTINS = {"echo", "exit", "true", "false", "cd", "set", "export", "source"}
+
+    def check_cmd(cmd: Any, event_name: str) -> None:
+        if not cmd or not isinstance(cmd, str):
+            return
+        exe = extract_executable_candidate(cmd)
+        if exe.lower() in SHELL_BUILTINS:
+            return
+        try:
+            validate_interpreter(exe)
+        except InterpreterAliasError as exc:
+            errors.append(f"{event_name}: {exc}")
+        except FileNotFoundError:
+            pass
+
+    def check_timeout(timeout_val: Any, event_name: str) -> None:
+        if timeout_val is not None:
+            try:
+                validate_timeout(timeout_val)
+            except InvalidTimeoutError as exc:
+                errors.append(f"{event_name}: {exc}")
+
+    if isinstance(data, dict):
+        hooks_section = data.get("hooks")
+        if isinstance(hooks_section, dict):
+            for event, groups in hooks_section.items():
+                if isinstance(groups, list):
+                    for group in groups:
+                        if isinstance(group, dict):
+                            items = group.get("hooks", [group]) if "hooks" in group else [group]
+                            for item in items:
+                                if isinstance(item, dict):
+                                    cmd = item.get("command") or item.get("commandWindows")
+                                    check_cmd(cmd, str(event))
+                                    if "timeout" in item:
+                                        check_timeout(item["timeout"], str(event))
+        elif isinstance(hooks_section, list):
+            for item in hooks_section:
+                if isinstance(item, dict):
+                    event_name = str(item.get("event", "hook"))
+                    check_cmd(item.get("command"), event_name)
+                    if "timeout" in item:
+                        check_timeout(item["timeout"], event_name)
+    return errors
 
 
 def _check_executable(path: Path) -> dict[str, Any]:
@@ -91,7 +155,7 @@ def check_entry(entry: dict[str, Any], *, consent: ConsentStore, timing: bool = 
             continue
         result = _check_config_file(cfg_path)
         result.update({"check": "config", "agent": target["agent"]})
-        if result["state"] in {"missing", "unreadable", "invalid"}:
+        if result["state"] in {"missing", "unreadable", "invalid", "invalid-hook-invariants"}:
             bump("error")
         findings.append(result)
 

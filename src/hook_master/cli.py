@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from . import doctor as doctor_module
 from . import materialize
@@ -51,6 +52,17 @@ def parser() -> argparse.ArgumentParser:
     doctor = commands.add_parser("doctor")
     doctor.add_argument("--id", dest="entry_id")
     doctor.add_argument("--timing", action="store_true")
+    doctor.add_argument("--self-test", action="store_true")
+
+    commands.add_parser("providers")
+
+    snippet = commands.add_parser("install-snippet")
+    snippet.add_argument("--provider", default="claude")
+    snippet.add_argument("--id", dest="entry_id")
+    snippet.add_argument("--script")
+    snippet.add_argument("--event")
+    snippet.add_argument("--python", default="python")
+    snippet.add_argument("--out", type=Path, default=None)
 
     consent = commands.add_parser("consent")
     consent.add_argument("id")
@@ -105,9 +117,53 @@ def main(argv: list[str] | None = None) -> int:
             _print(result)
             return 0 if result["ok"] else 1
         elif args.command == "doctor":
+            if getattr(args, "self_test", False):
+                from .providers.invariants import run_self_test
+
+                st = run_self_test()
+                _print(st)
+                if not st["ok"]:
+                    return 2
             result = doctor_module.run(registry, entry_id=args.entry_id, timing=args.timing)
             _print(result)
             return result["exit_code"]
+        elif args.command == "providers":
+            from .providers import PROVIDER_REGISTRY, resolve_provider
+
+            res: dict[str, Any] = {}
+            for name, prov in PROVIDER_REGISTRY.items():
+                res[name] = "verfuegbar" if prov.is_available() else "nicht verfuegbar"
+            res["gewaehlt"] = resolve_provider().name
+            _print(res)
+        elif args.command == "install-snippet":
+            from .providers import PROVIDER_REGISTRY, format_raw_script_snippet
+
+            if args.entry_id:
+                snippet_dict = format_raw_script_snippet(
+                    args.entry_id,
+                    provider_name=args.provider,
+                    script_path=args.script,
+                    python_executable=args.python,
+                    event_override=args.event,
+                )
+            elif args.script:
+                prov = PROVIDER_REGISTRY.get(args.provider)
+                if prov and hasattr(prov, "script_snippet"):
+                    snippet_dict = prov.script_snippet(
+                        args.script,
+                        event=args.event or "PreToolUse",
+                        python_executable=args.python,
+                    )
+                else:
+                    raise ValueError(f"Provider '{args.provider}' unterstuetzt kein script_snippet")
+            else:
+                raise ValueError("install-snippet benoetigt --id oder --script")
+            out_text = json.dumps(snippet_dict, ensure_ascii=False, indent=2)
+            if args.out:
+                args.out.write_text(out_text, encoding="utf-8")
+                print(f"geschrieben nach {args.out}", file=sys.stderr)
+            else:
+                print(out_text)
         elif args.command == "consent":
             record = ConsentStore().grant(args.id, by=args.by, note=args.note)
             _print(record.to_dict())
