@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 
 import pytest
@@ -94,6 +95,44 @@ def test_run_self_test_reports_all_ok():
     assert report["interpreter_valid"] is True
     assert report["alias_detection_works"] is True
     assert report["timeout_kills"] is True
+
+
+# ---------------------------------------------------------------------------
+# Regression T-20260921-750493182 Runde 3: alias_detection_works war auf
+# ubuntu-latest/macos-latest IMMER False, weil der alte Selbsttest gegen den
+# Namen "python3" prüfte -- ein legitimer, realer Interpreter auf POSIX.
+# Diese Tests simulieren alle drei Zielplattformen per monkeypatch, statt
+# sich auf das tatsächliche CI-Runner-Betriebssystem zu verlassen.
+#
+# Bewusst NICHT per monkeypatch.setattr(sys, "platform", "win32") getestet:
+# der Windows-only Zweig von validate_interpreter() ("python3" verbotener
+# Name), weil er intern shutil.which() aufruft -- und shutil.which() macht
+# auf einem REALEN POSIX-Host bei sys.platform=="win32" NoneType-Crashes
+# (fehlendes nt-Modul), da es selbst nicht nur nach sys.platform verzweigt,
+# sondern echte OS-Internals braucht. Dieser Zweig bleibt ueber den
+# bestehenden test_validate_interpreter_rejects_python3_on_windows oben
+# abgedeckt (skip-basiert, laeuft echt nur auf windows-latest).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("fake_platform", ["win32", "linux", "darwin"])
+def test_run_self_test_alias_detection_works_on_every_platform(monkeypatch, fake_platform):
+    monkeypatch.setattr(sys, "platform", fake_platform)
+    report = run_self_test(timeout=0.2)
+    assert report["alias_detection_works"] is True
+    assert report["ok"] is True
+
+
+def test_validate_interpreter_accepts_python3_when_platform_is_not_windows(monkeypatch, tmp_path):
+    """Ausserhalb von Windows ist 'python3' kein verbotener Name -- ein
+    echter, nicht-0-Byte Kandidat wird unveraendert akzeptiert (das war der
+    eigentliche Bug: die alte Selbsttest-Logik nahm bislang das Gegenteil an)."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    fake_python3 = tmp_path / "python3"
+    fake_python3.write_bytes(b"#!/bin/sh\n")
+    monkeypatch.setattr(shutil, "which", lambda name: str(fake_python3) if name == "python3" else None)
+    resolved = validate_interpreter("python3")
+    assert resolved == fake_python3
 
 
 # ---------------------------------------------------------------------------
@@ -240,12 +279,17 @@ def test_format_raw_script_notaus_wake_check():
 
 def test_doctor_detects_alias_in_config(tmp_path):
     registry = HookRegistry(tmp_path / "registry.json")
+    # Synthetischer 0-Byte-Alias-Kandidat statt "python3": "python3" ist auf
+    # POSIX ein legitimer Interpreter (T-20260921-750493182, Runde 3) und
+    # waere dort faelschlich NICHT als Invarianten-Verstoss erkannt worden.
+    fake_alias = tmp_path / "mock_alias.exe"
+    fake_alias.write_bytes(b"")
     bad_config = tmp_path / "settings.json"
     bad_config.write_text(
         json.dumps({
             "hooks": {
                 "PreToolUse": [
-                    {"hooks": [{"type": "command", "command": "python3 script.py"}]}
+                    {"hooks": [{"type": "command", "command": f"{fake_alias} script.py"}]}
                 ]
             }
         }),
