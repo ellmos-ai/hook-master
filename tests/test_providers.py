@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 
 import pytest
@@ -94,6 +95,43 @@ def test_run_self_test_reports_all_ok():
     assert report["interpreter_valid"] is True
     assert report["alias_detection_works"] is True
     assert report["timeout_kills"] is True
+
+
+# ---------------------------------------------------------------------------
+# Regression T-20260921-750493182 Runde 3: alias_detection_works war auf
+# ubuntu-latest/macos-latest IMMER False, weil der alte Selbsttest gegen den
+# Namen "python3" prüfte -- ein legitimer, realer Interpreter auf POSIX.
+# Diese Tests simulieren alle drei Zielplattformen per monkeypatch, statt
+# sich auf das tatsächliche CI-Runner-Betriebssystem zu verlassen.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("fake_platform", ["win32", "linux", "darwin"])
+def test_run_self_test_alias_detection_works_on_every_platform(monkeypatch, fake_platform):
+    monkeypatch.setattr(sys, "platform", fake_platform)
+    report = run_self_test(timeout=0.2)
+    assert report["alias_detection_works"] is True
+    assert report["ok"] is True
+
+
+def test_validate_interpreter_rejects_python3_via_monkeypatched_win32(monkeypatch):
+    """Die Windows-spezifische 'python3'-Namenssperre lässt sich unabhängig
+    vom echten Runner-Betriebssystem testen, indem sys.platform gemockt wird."""
+    monkeypatch.setattr(sys, "platform", "win32")
+    with pytest.raises(InterpreterAliasError, match="(Store-Alias|0-Byte|Verbotener Interpreter-Name)"):
+        validate_interpreter("python3")
+
+
+def test_validate_interpreter_accepts_python3_when_platform_is_not_windows(monkeypatch, tmp_path):
+    """Ausserhalb von Windows ist 'python3' kein verbotener Name -- ein
+    echter, nicht-0-Byte Kandidat wird unveraendert akzeptiert (das war der
+    eigentliche Bug: die alte Selbsttest-Logik nahm bislang das Gegenteil an)."""
+    monkeypatch.setattr(sys, "platform", "linux")
+    fake_python3 = tmp_path / "python3"
+    fake_python3.write_bytes(b"#!/bin/sh\n")
+    monkeypatch.setattr(shutil, "which", lambda name: str(fake_python3) if name == "python3" else None)
+    resolved = validate_interpreter("python3")
+    assert resolved == fake_python3
 
 
 # ---------------------------------------------------------------------------
