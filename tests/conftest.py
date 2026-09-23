@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from hook_master.consent import ConsentStore
@@ -18,6 +20,15 @@ def canonical_script(tmp_path):
 @pytest.fixture
 def hook_entry(canonical_script, tmp_path):
     deploy_target = tmp_path / "deployed" / "example_hook.py"
+    # Isolierte, garantiert existierende Config-Datei statt der echten
+    # Ambient-Datei "~/.claude/settings.json": deren Existenz/Inhalt haengt
+    # vom Host ab (auf einem Dev-Rechner mit Claude Code vorhanden -> "valid",
+    # auf einem frischen CI-Runner-Home nicht -> "missing" -> bump("error") in
+    # doctor.check_entry, was JEDEN Test dieser Fixture faelschlich auf
+    # severity "error" hochzieht. Siehe test_consumer_entry_only_checks_config_integrity
+    # in test_doctor.py fuer denselben, dort schon isolierten Aufbau.
+    fake_config = tmp_path / "settings.json"
+    fake_config.write_text(json.dumps({"hooks": {}}), encoding="utf-8")
     return {
         "id": "example-hook",
         "kind": "hook",
@@ -28,7 +39,7 @@ def hook_entry(canonical_script, tmp_path):
             "uri": str(canonical_script),
             "hash": {"algorithm": "sha256", "value": sha256_file(canonical_script)},
         },
-        "targets": [{"agent": "claude-code", "config_path": "~/.claude/settings.json", "deploy_path": str(deploy_target)}],
+        "targets": [{"agent": "claude-code", "config_path": str(fake_config), "deploy_path": str(deploy_target)}],
         "consumers": [],
         "status": "active",
         "adoption": {"laptop": "adopted"},

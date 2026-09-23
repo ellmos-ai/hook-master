@@ -14,6 +14,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -148,6 +149,16 @@ def run_self_test(
 ) -> dict[str, Any]:
     """Selbsttest gemaess Pflicht-Invariante 3(c):
     Misst Interpreter-Validierung und Timeout-Wirksamkeit vor Registrierung.
+
+    Die Alias-Erkennung wird gegen einen SYNTHETISCHEN 0-Byte-Kandidaten
+    geprueft, nicht gegen den Namen ``python3``: ``python3`` ist auf
+    Linux/macOS ein legitimer, realer Interpreter und validate_interpreter()
+    wirft dort korrekt KEINE Exception dafuer -- ein Selbsttest, der das
+    trotzdem erwartet, ist plattformabhaengig falsch (T-20260921-750493182,
+    Runde 3: auf ubuntu-latest/macos-latest war "alias_detection_works"
+    dadurch IMMER False). Der 0-Byte-Groessencheck in validate_interpreter()
+    ist dagegen auf jeder Plattform identisch und damit der richtige
+    gemeinsame Nenner fuer den Selbsttest.
     """
     results: dict[str, Any] = {
         "interpreter": str(interpreter),
@@ -161,18 +172,15 @@ def run_self_test(
     valid_path = validate_interpreter(interpreter)
     results["interpreter_valid"] = valid_path.is_file()
 
-    # 2. Alias-Erkennung testen (0-Byte Erkennung)
+    # 2. Alias-Erkennung testen: synthetischer 0-Byte-Kandidat statt "python3"
+    #    (plattformunabhaengig, siehe Docstring oben).
     alias_detected = False
-    p3 = shutil.which("python3")
-    if p3 and os.path.exists(p3) and os.path.getsize(p3) == 0:
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        fake_alias = Path(tmp_dir) / "mock_alias.exe"
+        fake_alias.write_bytes(b"")
         try:
-            validate_interpreter("python3")
+            validate_interpreter(fake_alias)
         except InterpreterAliasError:
-            alias_detected = True
-    else:
-        try:
-            validate_interpreter("python3")
-        except (InterpreterAliasError, FileNotFoundError):
             alias_detected = True
     results["alias_detection_works"] = alias_detected
 
