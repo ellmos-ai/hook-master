@@ -12,7 +12,7 @@ def test_required_house_files_exist():
     for name in [
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
-        "NOTICE", "THIRD_PARTY_LICENSES.md", "MARKETING-LOG.txt",
+        "NOTICE", "THIRD_PARTY_LICENSES.md", "MARKETING-LOG.txt", "TODO.md",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -199,3 +199,12 @@ def test_marketing_log_baseline():
     assert "INV-LOCAL-01" in mlog
     assert "INV-SLA-10" in mlog
     assert "Pfad A" in mlog
+
+
+def test_pep561_and_module_execution():
+    pkg_dir = REPO / "src" / "hook_master"
+    assert (pkg_dir / "py.typed").is_file(), "src/hook_master/py.typed fehlt"
+    assert (pkg_dir / "__main__.py").is_file(), "src/hook_master/__main__.py fehlt"
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'hook_master = ["py.typed"]' in pyproject
+

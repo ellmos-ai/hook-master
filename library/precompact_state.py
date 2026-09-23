@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_USMC_DB = r"C:\Users\User\.usmc\usmc_memory.db"
+DEFAULT_USMC_DB = str(Path.home() / ".usmc" / "usmc_memory.db")
 AGENT_ID = "claude-code"
 RESUME_MARKER = "RESUME-PUNKT"
 FRESH_MINUTES = 90
