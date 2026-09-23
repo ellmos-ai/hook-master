@@ -56,7 +56,6 @@ import tempfile
 import time
 from typing import Any
 
-
 STATE_DIR = os.path.join(os.path.expanduser("~"), ".claude", "state")
 HOOKS_DIR = os.path.join(os.path.expanduser("~"), ".claude", "hooks")
 BRIDGE_PATH = os.path.join(STATE_DIR, "token_budget.json")
@@ -182,6 +181,34 @@ def _default_sparmodus_state() -> dict:
     }
 
 
+def _preserve_park_fields(previous: dict, current: dict) -> dict:
+    """Carry the notaus ownership markers across an automatic state reset.
+
+    ``paused_goals`` and ``paused_agents`` are written by ``notaus_tools``
+    before the budget hook performs its automatic return.  Rebuilding the
+    state dictionary must not erase those markers: the resume step needs the
+    exact set that this host parked.
+    """
+    for key in ("paused_goals", "paused_agents"):
+        if key in previous:
+            current[key] = previous[key]
+    return current
+
+
+def _pending_resume_hint(state: dict) -> str:
+    """Describe preserved park markers without guessing their contents."""
+    parts = []
+    goals = state.get("paused_goals")
+    agents = state.get("paused_agents")
+    if isinstance(goals, list):
+        parts.append(f"{len(goals)} pausierte Goals")
+    if isinstance(agents, list):
+        parts.append(f"{len(agents)} geparkte Worker")
+    if not parts:
+        return ""
+    return " Aufhebung ausstehend (" + ", ".join(parts) + "); zuerst den vollständigen Parkkreis reaktivieren."
+
+
 def _compute_transition(mode: str, stage: int) -> str | None:
     """Liefert den neuen Modus, oder None wenn keine Modusaenderung ansteht."""
     if mode == "off":
@@ -277,9 +304,10 @@ def main() -> int:
         # Aktive Ueberwachung: der Hook darf den Modus selbst schalten.
         target = _compute_transition(mode, stage)
         if target is not None:
+            previous_sparmodus_state = sparmodus_state
             if target == "__RECOVER__":
                 recover_to = sparmodus_state.get("prior_mode") or "off"
-                sparmodus_state = {
+                sparmodus_state = _preserve_park_fields(previous_sparmodus_state, {
                     "mode": recover_to,
                     "prior_mode": None,
                     "set_at": time.strftime("%Y-%m-%d %H:%M"),
@@ -288,7 +316,8 @@ def main() -> int:
                     "wake_at": None,
                     "resets_at": None,
                     "leader_only": None,
-                }
+                })
+                pending_hint = _pending_resume_hint(sparmodus_state)
                 message = (
                     f"AUTOMATISCHE RUECKKEHR aus NOTAUS (5h-Stand {used_pct:.0f}%, "
                     f"erholt) -> neuer Modus '{recover_to}'. Fuehre JETZT Abschnitt "
@@ -296,12 +325,12 @@ def main() -> int:
                     "bereits gesetzt, aber USMC-RESUME lesen+fortschreiben, "
                     "erreichbare Teammates per SendMessage reaktivieren und "
                     "Normalbetrieb an den User melden bleiben Aufgabe dieser "
-                    "Session."
+                    f"Session.{pending_hint}"
                 )
             elif target == "notaus":
                 wake_at = float(resets_at) if isinstance(resets_at, (int, float)) and resets_at else time.time() + FIVE_HOUR_SECONDS
                 leader_only = not (isinstance(resets_at, (int, float)) and resets_at)
-                sparmodus_state = {
+                sparmodus_state = _preserve_park_fields(previous_sparmodus_state, {
                     "mode": "notaus",
                     "prior_mode": mode,
                     "set_at": time.strftime("%Y-%m-%d %H:%M"),
@@ -310,7 +339,7 @@ def main() -> int:
                     "wake_at": wake_at,
                     "resets_at": resets_at if isinstance(resets_at, (int, float)) else None,
                     "leader_only": leader_only,
-                }
+                })
                 wake_hint = (
                     f"Aufwachen um {time.strftime('%Y-%m-%d %H:%M', time.localtime(wake_at))} lokal"
                     if not leader_only
@@ -324,7 +353,9 @@ def main() -> int:
                     "State bereits gesetzt."
                 )
             elif target == "off":
-                sparmodus_state = _default_sparmodus_state()
+                sparmodus_state = _preserve_park_fields(
+                    previous_sparmodus_state, _default_sparmodus_state()
+                )
                 sparmodus_state["set_at"] = time.strftime("%Y-%m-%d %H:%M")
                 sparmodus_state["set_by"] = "hook"
                 sparmodus_state["reason"] = f"Automatisches Ende manual-spar, 5h-Stand {used_pct:.0f}% (erholt)"

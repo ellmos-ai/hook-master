@@ -37,7 +37,6 @@ import os
 import sys
 import time
 
-
 STATE_DIR = os.path.join(os.path.expanduser("~"), ".claude", "state")
 SPARMODUS_STATE_PATH = os.path.join(STATE_DIR, "sparmodus_state.json")
 
@@ -61,6 +60,20 @@ def _read_json(path: str) -> dict:
         return {}
 
 
+def _pending_resume_hint(state: dict) -> str:
+    """Make preserved park markers visible at the next wake check."""
+    parts = []
+    goals = state.get("paused_goals")
+    agents = state.get("paused_agents")
+    if isinstance(goals, list):
+        parts.append(f"{len(goals)} pausierte Goals")
+    if isinstance(agents, list):
+        parts.append(f"{len(agents)} geparkte Worker")
+    if not parts:
+        return ""
+    return " Aufhebung ausstehend (" + ", ".join(parts) + "); zuerst den vollständigen Parkkreis reaktivieren."
+
+
 def main() -> int:
     _ensure_utf8_stdio()
     raw = sys.stdin.read()
@@ -79,6 +92,7 @@ def main() -> int:
     reason = state.get("reason", "")
     set_at = state.get("set_at")
     prior_mode = state.get("prior_mode") or "off"
+    pending_hint = _pending_resume_hint(state)
 
     known_wake_target = wake_at if isinstance(wake_at, (int, float)) else resets_at
 
@@ -91,6 +105,7 @@ def main() -> int:
             "Guthaben wieder da, Abschnitt 'Aufheben' aus Skill notaus "
             f"ausfuehren (Rueckkehr zu Modus '{prior_mode}') statt den Zustand "
             "zu ignorieren."
+            + pending_hint
         )
     else:
         wake_hint = (
@@ -104,6 +119,7 @@ def main() -> int:
             "GEPARKT bleiben: keine neue Arbeit beginnen, laufende Delegationen "
             "nicht erweitern, nur den Zustand pruefen und ggf. auf das naechste "
             "Aufwachfenster verweisen. Details: Skill 'notaus'."
+            + pending_hint
         )
 
     print(json.dumps({
