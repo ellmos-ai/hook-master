@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Discoverability, 18-Point Navigation Parity, Saturated Keywords & Level 1 SBOM Hardening (2026-09-24) [Pfad B]
+- **Saturated GitHub Topics & Homepage URL:** Configured 20 saturated repository topics and set canonical homepage URL `https://github.com/ellmos-ai/hook-master#readme`.
+- **PEP 621 Keywords Saturation:** Aligned `pyproject.toml` keywords to 20 saturated terms in 1-to-1 parity with GitHub topics; preserved strict version freeze at `0.2.0` (T-20260920-167562623).
+- **18-Point Bilingual Navigation Parity & Dual Reciprocal Anchors:** Restructured `README.md` and `README_de.md` to full 18-point Quick Navigation parity with dual reciprocal HTML anchor aliases (`<a id="sec-01"></a>` .. `<a id="sec-18"></a>`).
+- **Target Personas & SEO Discoverability:** Formally mapped four developer personas (`[PERSONA-01]` Autonomous Agent & Swarm Architects, `[PERSONA-02]` Local-First Tool Builders, `[PERSONA-03]` DevOps & Fleet Engineers, `[PERSONA-04]` Enterprise Safety & Compliance Officers) with high-intent search queries and architectural solutions.
+- **10-Dimension 5-Way Comparative Matrix:** Benchmarked `hook-master` against Ad-Hoc Config Edits, Cross-Directory Symlinks, Generic Shell/Git Hooks, and Heavyweight Daemons/Webhooks across invariants `INV-LOCAL-01` to `INV-SLA-10`.
+- **Level 1 SBOM Invariant Cross-Reference Matrix:** Added dedicated tabular mapping in `THIRD_PARTY_LICENSES.md` detailing implementation mechanisms, dependency impacts, and compliance certification for all 10 invariants.
+- **AI Context & Machine-Readable Discovery:** Synchronized `llms.txt` with timestamp `2026-09-24` and test baseline verification.
+- **Contract Verification Suite:** Added new contract tests in `tests/test_metadata.py` asserting 18-point navigation parity, dual HTML reciprocal anchors, persona mapping, comparative evaluation matrix, 20-keyword saturation, and Level 1 SBOM tabular verification.
+
 ### Final Gate Hardening, Personal Path Neutrality & Module Execution (2026-09-23) [Pfad A / AI MODULES CARE]
 - **Final Gate 1-10 Compliance (10/10 PASS):** Achieved 10/10 PASS on canonical `final_gate_check.py` release readiness verification.
 - **Personal Path Neutrality (Gate 7):** Refactored `library/precompact_state.py` fallback USMC DB path to dynamic `Path.home()` instead of hardcoded personal user path.

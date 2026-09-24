@@ -5,9 +5,9 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-09-22
+Last-checked: 2026-09-24
 Version: 0.2.0
-Tests: 73 passed (pytest, tests/)
+Tests: 114 passed (pytest, tests/)
 License: MIT
 Attribution: NOTICE
 Transparency: THIRD_PARTY_LICENSES.md (Level 1 SBOM, zero runtime dependencies, 100% PSFL-2.0 stdlib)

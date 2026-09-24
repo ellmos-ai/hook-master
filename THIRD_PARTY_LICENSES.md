@@ -1,10 +1,10 @@
 # Third-Party Licenses & Transparency Notice (Level 1 SBOM)
 
-> **Project:** `ellmos-ai/hook-master`  
-> **Audited:** 2026-09-22  
-> **Repository License:** [MIT License](LICENSE)  
-> **Canonical Notice:** [NOTICE](NOTICE)  
-> **Architecture & Privacy:** 100% Local-First, Zero-Egress, Unprivileged User-Mode (`RunAsInvoker`), Fail-Closed Consent Gate  
+> **Project:** `ellmos-ai/hook-master`<br>
+> **Audited:** 2026-09-24<br>
+> **Repository License:** [MIT License](LICENSE)<br>
+> **Canonical Notice:** [NOTICE](NOTICE)<br>
+> **Architecture & Privacy:** 100% Local-First, Zero-Egress, Unprivileged User-Mode (`RunAsInvoker`), Fail-Closed Consent Gate
 
 ---
 
@@ -25,6 +25,23 @@ Furthermore, `hook-master` guarantees:
 8. **Optional Transport Independence (INV-TRANS-08):** Standalone operation requires zero external packages; `system_gap_master` adapter operates purely as an optional, graceful transport layer.
 9. **100% Permissive Audited Dependency Stack (INV-LIC-09):** Clean MIT/PSFL stack audited in this document, zero copyleft or AGPL contamination.
 10. **Dual Security Response & Triage SLA (INV-SLA-10):** Commitments to 48-hour response confirmation and 5-day triage via canonical security channels (`security@open-bricks.org`, `security@ellmos.ai`).
+
+---
+
+## Level 1 SBOM Invariant Cross-Reference Matrix
+
+| Invariant Code | Core Requirement | Implementation Mechanism | License / Dependency Impact | Compliance Status |
+|:---|:---|:---|:---|:---:|
+| `INV-LOCAL-01` | 100% Local-First & Zero-Egress | Python Standard Library (`pathlib`, `json`, `hashlib`) | Zero external runtime network dependencies | **PASS (100% Offline)** |
+| `INV-SEC-02` | Unprivileged User Execution | Operates under standard OS user token (`RunAsInvoker`) | Zero root or administrator elevation requirements | **PASS (User-Mode)** |
+| `INV-PTR-03` | Pointer-Only Registry Architecture | Metadata pointer storage (`registry.json`, `allowlist.json`) | Rejects embedded executable script bodies | **PASS (Pointer-Only)** |
+| `INV-EXEC-04` | Executable Trust Class Separation | Cryptographic SHA-256 integrity verification | Distinguishes executable hooks from static policies | **PASS (Cryptographic)** |
+| `INV-MAT-05` | One-Way Materialization Invariant | Deterministic copy (`canonical -> deployed`) | Never overwrites canonical source from target | **PASS (One-Way)** |
+| `INV-CONSENT-06` | Fail-Closed Consent Allowlist | Explicit user consent gate (`allowlist.json`) | Unconsented hooks blocked from deployment | **PASS (Fail-Closed)** |
+| `INV-DOC-07` | Comprehensive Hook-Doctor Engine | AST/bytecode validation (`py_compile`), drift & config checks | Standard library diagnostics with zero external tools | **PASS (Self-Contained)** |
+| `INV-TRANS-08` | Optional Transport Independence | Decoupled adapter architecture (`adapters/system_gap.py`) | Zero runtime dependency on optional transport | **PASS (Decoupled)** |
+| `INV-LIC-09` | 100% Permissive Dependency Footprint | MIT & PSFL-2.0 audited dependency stack | Zero copyleft, GPL, or AGPL contamination | **PASS (Permissive)** |
+| `INV-SLA-10` | 48h Security SLA & Coordinated Disclosure | Binding 48h response & 5d triage commitment | Coordinated disclosure via security@open-bricks.org | **PASS (Contractual)** |
 
 ---
 

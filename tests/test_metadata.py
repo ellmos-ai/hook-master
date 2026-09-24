@@ -103,7 +103,7 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert "Last-checked: 2026-09-22" in llms
+    assert "Last-checked: 2026-09-24" in llms
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
@@ -208,3 +208,64 @@ def test_pep561_and_module_execution():
     pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
     assert 'hook_master = ["py.typed"]' in pyproject
 
+
+def test_bilingual_readme_18_point_navigation_parity_and_anchors():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    for i in range(1, 19):
+        anchor = f'<a id="sec-{i:02d}"></a>'
+        assert anchor in en_text, f"Anchor {anchor} missing in README.md"
+        assert anchor in de_text, f"Anchor {anchor} missing in README_de.md"
+
+
+def test_target_personas_parity():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    personas = ["[PERSONA-01]", "[PERSONA-02]", "[PERSONA-03]", "[PERSONA-04]"]
+    for p in personas:
+        assert p in en_text, f"Persona {p} missing in README.md"
+        assert p in de_text, f"Persona {p} missing in README_de.md"
+
+
+def test_comparative_matrix_parity():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    invariants = [
+        "INV-LOCAL-01", "INV-SEC-02", "INV-PTR-03", "INV-EXEC-04", "INV-MAT-05",
+        "INV-CONSENT-06", "INV-DOC-07", "INV-TRANS-08", "INV-LIC-09", "INV-SLA-10"
+    ]
+    for inv in invariants:
+        assert inv in en_text, f"Invariant {inv} missing in README.md"
+        assert inv in de_text, f"Invariant {inv} missing in README_de.md"
+
+
+def test_pep621_twenty_keywords_saturation():
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    expected_keywords = [
+        "agent-hooks", "antigravity", "claude-code", "cli", "codex",
+        "developer-tools", "ellmos-ai", "fail-closed", "governance", "hash-verification",
+        "hook-registry", "local-first", "materialization", "multi-agent", "offline-first",
+        "open-bricks", "pointer-registry", "python", "security-guardrails", "zero-egress",
+    ]
+    for kw in expected_keywords:
+        assert f'"{kw}"' in pyproject, f"Keyword {kw} missing in pyproject.toml"
+
+
+def test_third_party_licenses_invariant_cross_reference_matrix():
+    sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
+    assert "Level 1 SBOM Invariant Cross-Reference Matrix" in sbom
+    assert "Audited:** 2026-09-24" in sbom
+    for i in range(1, 11):
+        assert "INV-" in sbom
+
+
+def test_changelog_has_unreleased_pfad_b():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "Pfad B" in changelog
+    assert "2026-09-24" in changelog
+
+
+def test_marketing_log_has_pfad_b_entry():
+    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "IMPLEMENTED PFAD B DISCOVERABILITY & MARKETING OVERHAUL (2026-09-24)" in mlog

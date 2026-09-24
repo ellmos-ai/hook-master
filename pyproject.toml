@@ -12,13 +12,26 @@ license = "MIT"
 authors = [{name = "Lukas G"}]
 dependencies = []
 keywords = [
-  "hooks",
-  "agent-tooling",
-  "local-first",
-  "registry",
-  "materialization",
+  "agent-hooks",
+  "antigravity",
   "claude-code",
+  "cli",
   "codex",
+  "developer-tools",
+  "ellmos-ai",
+  "fail-closed",
+  "governance",
+  "hash-verification",
+  "hook-registry",
+  "local-first",
+  "materialization",
+  "multi-agent",
+  "offline-first",
+  "open-bricks",
+  "pointer-registry",
+  "python",
+  "security-guardrails",
+  "zero-egress",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
