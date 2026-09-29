@@ -1,0 +1,69 @@
+# Third-Party Licenses & Level 1 SBOM
+
+Last checked: 2026-09-29 against PyPI metadata and local runtime environment.
+Audited: Stand: 2026-09-29 against Level 1 SBOM and runtime invariants.
+
+Scope: direct dependencies declared in `pyproject.toml` as well as standard
+library and development packages. This inventory is a direct dependency review
+and Level 1 SBOM affirmation, complementing the markdown review in
+`THIRD_PARTY_LICENSES.md`.
+
+## Project License & Attribution
+
+hook-master is licensed under the MIT License.
+Canonical copyright attribution is maintained in `NOTICE`:
+Copyright (c) 2026 Lukas Geiger, ellmos-ai family under open-bricks umbrella.
+
+## Architecture & Security Invariants
+
+- 100% Local-First & Zero Cloud Egress (INV-LOCAL-01)
+- Unprivileged User-Mode Execution: RunAsInvoker Non-Elevation (INV-SEC-02)
+- Pointer-Only Registry Architecture (INV-PTR-03)
+- Executable Code Trust Class Separation (INV-EXEC-04)
+- One-Way Materialization Invariant: canonical -> deployed (INV-MAT-05)
+- Fail-Closed Consent Allowlist (INV-CONSENT-06)
+- Comprehensive Hook-Doctor Diagnostics (INV-DOC-07)
+- Optional Transport Independence (INV-TRANS-08)
+- Zero-Copyleft & 100% Permissive Open-Source Licensing (INV-LIC-09)
+- 48h Security Response & 5-Day Triage SLA (INV-SLA-10)
+
+## Core Runtime Dependencies
+
+| Package | Ecosystem | Version / Range | License | Role & Purpose |
+|---|---|---:|---|---|
+| Python Standard Library | Python | >=3.10 | PSFL-2.0 | Core pointer registry, hashlib (SHA-256), json, pathlib, py_compile, shutil |
+
+*Note:* hook-master has zero external runtime dependencies (`dependencies = []`
+in `pyproject.toml`). It operates fully standalone and network-free.
+
+## Optional Adapter & Reference Sibling Integrations
+
+| Package | Ecosystem | Version / Range | License | Role & Purpose |
+|---|---|---:|---|---|
+| system-gap-master | Python / local | optional | MIT | Optional cross-machine transfer yard sync export adapter (`adapters/system_gap.py`) |
+| policy-registry | Python / local | sibling | MIT | Architectural sibling reference for pointer-only registry (zero runtime coupling) |
+
+## Development, Testing & Quality Assurance Tooling
+
+| Package | Ecosystem | Version / Range | License | Role & Purpose |
+|---|---|---:|---|---|
+| pytest | Python / PyPI | >=8.0 | MIT | Automated test runner, contract assertions and mock fixtures |
+| jsonschema | Python / PyPI | >=4.23 | MIT | Module manifest contract validation against `ellmos.module.v2.schema.json` |
+| ruff | Python / PyPI | >=0.6.0 | MIT / Apache-2.0 | High-performance Python linter and code style enforcement |
+| setuptools | Python / PyPI | >=68.0 | MIT | Standard build backend (PEP 517 / PEP 621 compliant) |
+
+## Level 1 SBOM Invariant Verification (Stand: 2026-09-29)
+
+All 10 architectural and runtime governance invariants are confirmed:
+- INV-LOCAL-01: 100% Local-First & Zero Egress (zero network telemetry, zero phone-home calls)
+- INV-SEC-02: Unprivileged User-Mode Execution (RunAsInvoker non-elevation principle)
+- INV-PTR-03: Pointer-Only Registry Architecture (stores pointers in registry.json, no embedded code)
+- INV-EXEC-04: Executable Code Trust Class Separation (SHA-256 verified on every check)
+- INV-MAT-05: One-Way Materialization Invariant (canonical -> deployed, never reverse)
+- INV-CONSENT-06: Fail-Closed Consent Allowlist (unconsented hooks blocked from materialization)
+- INV-DOC-07: Comprehensive Hook-Doctor Engine (bytecode py_compile, drift & agent config checks)
+- INV-TRANS-08: Optional Transport Independence (zero runtime dependency on system-gap-master)
+- INV-LIC-09: 100% Permissive Audited Dependency Stack (clean MIT/PSFL stack, zero copyleft/AGPL)
+- INV-SLA-10: 48h Response, 5-Day Triage SLA (coordinated disclosure via security@open-bricks.org)
+
+Refer to `THIRD_PARTY_LICENSES.md` for full cross-reference matrix and component analyses.

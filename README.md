@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-114%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verified](https://img.shields.io/badge/verified-2026--09--24-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-118%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verified](https://img.shields.io/badge/verified-2026--09--29-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -366,7 +366,7 @@ git diff --check
 <a id="sec-17"></a><a id="17-third-party-licenses--level-1-sbom"></a><a id="third-party-licenses"></a>
 ## 17. Third-Party Licenses & Level 1 SBOM
 
-`hook-master` maintains a complete Level 1 Software Bill of Materials (SBOM) in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+`hook-master` maintains a complete Level 1 Software Bill of Materials (SBOM) in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) and plain-text companion [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt).
 - **Core Runtime:** 100% Python Standard Library ([PSFL-2.0](https://docs.python.org/3/license.html)), zero external runtime packages.
 - **Optional Adapters:** Permissive MIT-licensed integrations.
 - **Zero Copyleft:** Strictly zero GPL, AGPL, or restrictive copyleft dependencies.
@@ -380,7 +380,7 @@ git diff --check
 ### Open Source License
 This software is licensed under the terms of the [MIT License](LICENSE).
 Formal ecosystem attribution and origin notices are declared in [`NOTICE`](NOTICE).
-Detailed Level 1 SBOM and dependency transparency records are available in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+Detailed Level 1 SBOM and dependency transparency records are available in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) and [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt).
 
 ### German Statutory Notice & Liability Limitation (§ 521 BGB Gefälligkeitsrecht)
 The provision of this software and its associated documentation is gratuitous (unentgeltliche Bereitstellung). In accordance with the statutory liability regime under German Civil Law governing gratuitous services (**§ 521 BGB** — *Haftung des Schenkers*), liability for any defects of quality or title (Sach- und Rechtsmängel) is strictly limited to cases of intentional misconduct (**Vorsatz**) and gross negligence (**grobe Fahrlässigkeit**). Any broader statutory warranty or tortious liability for slight negligence is expressly excluded to the fullest extent permitted by applicable law.

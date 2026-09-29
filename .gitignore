@@ -20,9 +20,14 @@ uv.lock
 *conflicted copy*
 *-WORKSTATION*
 *-WORKSTATION-LG*
+*_WORKSTATION*
+*_WORKSTATION-LG*
+*-WORKSTATION.*
+*-WORKSTATION-LG.*
 *-ASUS*
 *-ASUS-GEI*
 *-LAPTOP*
+*-IDEAPAD*
 *-Mac Studio*
 *-MacBook*
 * (kopie)*
@@ -45,6 +50,8 @@ dist/
 
 # Test, linter & coverage caches
 .pytest_cache/
+.pytest_temp/
+.pytest_tmp*/
 .ruff_cache/
 .coverage
 .coverage.*
@@ -60,6 +67,7 @@ htmlcov/
 *.tmp
 *.bak
 *.swp
+*.swo
 *~
 *.log
 
@@ -72,6 +80,7 @@ htmlcov/
 
 # OS & IDE
 Thumbs.db
+Desktop.ini
 .DS_Store
 .idea/
 .vscode/

@@ -48,7 +48,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt"]
 
 [project.urls]
 Homepage = "https://github.com/ellmos-ai/hook-master"
@@ -59,8 +59,9 @@ Issues = "https://github.com/ellmos-ai/hook-master/issues"
 Changelog = "https://github.com/ellmos-ai/hook-master/blob/main/CHANGELOG.md"
 Security = "https://github.com/ellmos-ai/hook-master/blob/main/SECURITY.md"
 "Third-Party Licenses" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"
+"Third-Party Licenses (Text)" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.txt"
 "Marketing Log" = "https://github.com/ellmos-ai/hook-master/blob/main/MARKETING-LOG.txt"
-"Parent Organization" = "https://github.com/ellmos-ai"
+Parent-Organization = "https://github.com/ellmos-ai"
 Umbrella = "https://github.com/open-bricks"
 "LLM Ready" = "https://github.com/ellmos-ai/hook-master/blob/main/llms.txt"
 Notice = "https://github.com/ellmos-ai/hook-master/blob/main/NOTICE"
@@ -82,7 +83,7 @@ minversion = "7.0"
 testpaths = ["tests"]
 addopts = "-ra -q"
 pythonpath = ["src"]
-norecursedirs = [".git", ".pytest_cache", "__pycache__", "build", "dist", ".venv", "venv", ".ruff_cache", ".hypothesis"]
+norecursedirs = [".git", ".pytest_cache", ".pytest_temp", ".pytest_tmp*", "__pycache__", "build", "dist", ".venv", "venv", ".ruff_cache", ".hypothesis", ".turbo", ".nyc_output"]
 
 [tool.ruff]
 target-version = "py310"

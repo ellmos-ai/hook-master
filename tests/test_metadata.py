@@ -12,7 +12,8 @@ def test_required_house_files_exist():
     for name in [
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
-        "NOTICE", "THIRD_PARTY_LICENSES.md", "MARKETING-LOG.txt", "TODO.md",
+        "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt",
+        "MARKETING-LOG.txt", "TODO.md",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -103,13 +104,14 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert "Last-checked: 2026-09-24" in llms
+    assert "Last-checked: 2026-09-29" in llms
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
     assert "## CLI Usage Quick Reference" in llms
     assert "NOTICE" in llms
     assert "THIRD_PARTY_LICENSES.md" in llms
+    assert "THIRD_PARTY_LICENSES.txt" in llms
     assert "521 BGB" in llms
 
 
@@ -121,6 +123,7 @@ def test_notice_file_content():
     assert "open-bricks" in notice
     assert "MIT License" in notice
     assert "THIRD_PARTY_LICENSES.md" in notice
+    assert "THIRD_PARTY_LICENSES.txt" in notice
 
 
 def test_third_party_licenses_level1_sbom():
@@ -139,8 +142,11 @@ def test_ci_workflows_hardened():
     assert (workflows_dir / "ci.yml").is_file()
     assert (workflows_dir / "stale.yml").is_file()
     assert (workflows_dir / "welcome.yml").is_file()
+    assert (workflows_dir / "auto-assign.yml").is_file()
+    assert (workflows_dir / "label-sync.yml").is_file()
+    assert (REPO / ".github" / "labels.yml").is_file()
 
-    for wf_name in ["ci.yml", "stale.yml", "welcome.yml"]:
+    for wf_name in ["ci.yml", "stale.yml", "welcome.yml", "auto-assign.yml", "label-sync.yml"]:
         content = (workflows_dir / wf_name).read_text(encoding="utf-8")
         assert "timeout-minutes:" in content, f"timeout-minutes missing in {wf_name}"
         assert "concurrency:" in content, f"concurrency missing in {wf_name}"
@@ -156,18 +162,23 @@ def test_ci_workflows_hardened():
 
 def test_gitignore_multihost_and_lock_defense():
     gi = (REPO / ".gitignore").read_text(encoding="utf-8")
-    for pattern in ["*conflicted copy*", "*-WORKSTATION*", "LOCK", "LOCK.*", ".automation-lock", "uv.lock", ".hypothesis/"]:
+    for pattern in [
+        "*conflicted copy*", "*-WORKSTATION*", "*_WORKSTATION*", "*-IDEAPAD*",
+        "LOCK", "LOCK.*", ".automation-lock", "uv.lock", ".hypothesis/", ".pytest_temp/"
+    ]:
         assert pattern in gi, f"pattern {pattern} missing in .gitignore"
 
 
 def test_pyproject_pep621_hardening_and_version_freeze():
     pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
     assert 'version = "0.2.0"' in pyproject, "Version must remain frozen at 0.2.0"
-    assert 'license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]' in pyproject
+    assert 'license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt"]' in pyproject
     assert 'Notice = "https://github.com/ellmos-ai/hook-master/blob/main/NOTICE"' in pyproject
     assert '"Third-Party Licenses" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"' in pyproject
+    assert '"Third-Party Licenses (Text)" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.txt"' in pyproject
     assert 'minversion = "7.0"' in pyproject
     assert "norecursedirs" in pyproject
+    assert ".pytest_temp" in pyproject
 
 
 def test_statutory_notice_and_security_sla():
@@ -254,7 +265,7 @@ def test_pep621_twenty_keywords_saturation():
 def test_third_party_licenses_invariant_cross_reference_matrix():
     sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
     assert "Level 1 SBOM Invariant Cross-Reference Matrix" in sbom
-    assert "Audited:** 2026-09-24" in sbom
+    assert "Audited:** 2026-09-29" in sbom
     for i in range(1, 11):
         assert "INV-" in sbom
 
@@ -269,3 +280,34 @@ def test_changelog_has_unreleased_pfad_b():
 def test_marketing_log_has_pfad_b_entry():
     mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
     assert "IMPLEMENTED PFAD B DISCOVERABILITY & MARKETING OVERHAUL (2026-09-24)" in mlog
+
+
+def test_plain_text_sbom_companion():
+    txt_sbom = (REPO / "THIRD_PARTY_LICENSES.txt").read_text(encoding="utf-8")
+    assert "Audited: Stand: 2026-09-29" in txt_sbom
+    assert "INV-LOCAL-01" in txt_sbom
+    assert "INV-SLA-10" in txt_sbom
+    assert "RunAsInvoker" in txt_sbom
+    assert "PSFL-2.0" in txt_sbom
+    assert "zero external runtime dependencies" in txt_sbom
+
+
+def test_labels_yml_has_eleven_governance_labels():
+    labels_file = REPO / ".github" / "labels.yml"
+    assert labels_file.is_file()
+    content = labels_file.read_text(encoding="utf-8")
+    for lbl in ["bug", "enhancement", "good first issue", "help wanted", "documentation", "duplicate", "wontfix", "priority: high", "priority: low", "needs-triage", "stale"]:
+        assert f"- name: {lbl}" in content or f"- name: '{lbl}'" in content
+
+
+def test_changelog_has_unreleased_pfad_a_2026_09_29():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "2026-09-29" in changelog
+    assert "Pfad A" in changelog
+
+
+def test_marketing_log_has_pfad_a_entry_2026_09_29():
+    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "PFAD A" in mlog
+    assert "2026-09-29" in mlog

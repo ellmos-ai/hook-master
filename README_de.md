@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-114%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verifiziert](https://img.shields.io/badge/verifiziert-2026--09--24-brightgreen.svg)](llms.txt) [![Sicherheits-SLA](https://img.shields.io/badge/sicherheits--sla-48h%20antwort-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-118%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verifiziert](https://img.shields.io/badge/verifiziert-2026--09--29-brightgreen.svg)](llms.txt) [![Sicherheits-SLA](https://img.shields.io/badge/sicherheits--sla-48h%20antwort-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -366,7 +366,7 @@ git diff --check
 <a id="sec-17"></a><a id="17-drittanbieter-lizenzen--level-1-sbom"></a><a id="drittanbieter-lizenzen"></a>
 ## 17. Drittanbieter-Lizenzen & Level 1 SBOM
 
-`hook-master` führt eine vollständige Level 1 Software Bill of Materials (SBOM) in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md):
+`hook-master` führt eine vollständige Level 1 Software Bill of Materials (SBOM) in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) sowie als Plain-Text-Begleiter in [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt):
 - **Kern-Laufzeit:** 100% Python Standard Library ([PSFL-2.0](https://docs.python.org/3/license.html)), keine externen Laufzeitpakete.
 - **Optionale Adapter:** Permissiv MIT-lizenzierte Schnittstellen.
 - **Keine Copyleft-Bindungen:** Ausnahmslos frei von GPL-, AGPL- oder sonstigen restriktiven Beschränkungen.
@@ -380,7 +380,7 @@ git diff --check
 ### Open-Source-Lizenz
 Diese Software ist unter den Bedingungen der [MIT-Lizenz](LICENSE) lizenziert.
 Formelle Attributionen und Herkunftsnachweise sind in der [`NOTICE`](NOTICE)-Datei deklariert.
-Detaillierte Level 1 SBOM- und Abhängigkeitsnachweise sind in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) dokumentiert.
+Detaillierte Level 1 SBOM- und Abhängigkeitsnachweise sind in [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) und [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) dokumentiert.
 
 ### Gesetzlicher Haftungsausschluss (§ 521 BGB Gefälligkeitsrecht)
 Die Bereitstellung dieser Software und ihrer Dokumentation erfolgt unentgeltlich. Gemäß dem gesetzlichen Haftungsregime des deutschen Bürgerlichen Gesetzbuchs für unentgeltliche Leistungen (**§ 521 BGB** — *Haftung des Schenkers*) ist die Haftung für Sach- und Rechtsmängel auf **Vorsatz** und **grobe Fahrlässigkeit** beschränkt. Eine weitergehende gesetzliche Gewährleistung oder deliktische Haftung für einfache oder leichte Fahrlässigkeit ist im gesetzlich zulässigen Rahmen ausdrücklich ausgeschlossen.

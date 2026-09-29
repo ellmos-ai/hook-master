@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Pfad A Repository-Hygiene, CI Lifecycle Workflows, Level 1 SBOM Text Companion & Contract Tests (2026-09-29) [Pfad A]
+- **CI Lifecycle Workflows:** Provisioned `.github/workflows/auto-assign.yml` (actions/github-script@v7, timeout-minutes: 5, concurrency cancel-in-progress, least-privilege permissions: pull-requests: write, issues: write) and `.github/workflows/label-sync.yml` (EndBug/label-sync@v2, timeout-minutes: 5, concurrency cancel-in-progress, least-privilege permissions: issues: write) alongside existing `ci.yml`, `stale.yml`, and `welcome.yml`; provisioned canonical `.github/labels.yml` with 11 standard governance labels per GOVERNANCE.md §4.2.
+- **Multi-Host Cloud-Sync & Lock Defense (.gitignore):** Hardened `.gitignore` against multi-host conflict tokens (`*-IDEAPAD*`, `*_WORKSTATION*`, `*_WORKSTATION-LG*`, `*-WORKSTATION.*`, `*-WORKSTATION-LG.*`), temporary test caches (`.pytest_temp/`, `.pytest_tmp*/`), and OS/editor artifacts (`*.swo`, `Desktop.ini`).
+- **Level 1 SBOM Plain-Text Companion & Re-Audit (THIRD_PARTY_LICENSES.txt):** Created companion plain-text SBOM inventory `THIRD_PARTY_LICENSES.txt` Stand 2026-09-29 affirming zero runtime dependencies (100% Python Standard Library PSFL-2.0), unprivileged `RunAsInvoker` user-mode non-elevation, Zero-Copyleft isolation, and compliance across all 10 governance invariants `INV-LOCAL-01` to `INV-SLA-10`. Re-audited `THIRD_PARTY_LICENSES.md` as of 2026-09-29.
+- **Attribution Notice Synchronization (NOTICE):** Updated canonical root `NOTICE` file with cross-references to both `THIRD_PARTY_LICENSES.md` and `THIRD_PARTY_LICENSES.txt`.
+- **PEP 621 Packaging & Pytest Hardening (pyproject.toml):** Standardized `license-files` whitelist to include `THIRD_PARTY_LICENSES.txt`; registered `"Third-Party Licenses (Text)"` endpoint in `[project.urls]`; hardened `pytest.ini_options` `norecursedirs` against `.pytest_temp` and transient caches. Preserved strict version freeze at `0.2.0` per T-20260920-167562623.
+- **Bilingual Documentation & Badges:** Updated `README.md` and `README_de.md` badges to Verified `2026--09--29` and added plain-text SBOM companion references in Sections 17 and 18.
+- **AI Agent Discovery & Indexing (llms.txt):** Updated `Last-checked` timestamp to `2026-09-29` and added references to `THIRD_PARTY_LICENSES.txt` and `.github/labels.yml`.
+- **Contract Verification Suite Expansion (tests/test_metadata.py):** Added new contract test cases verifying auto-assign and label-sync workflows, 11 standard governance labels in `labels.yml`, plain-text SBOM companion file, extended `.gitignore` defense patterns, and PEP 621 metadata alignment.
+
 ### Discoverability, 18-Point Navigation Parity, Saturated Keywords & Level 1 SBOM Hardening (2026-09-24) [Pfad B]
 - **Saturated GitHub Topics & Homepage URL:** Configured 20 saturated repository topics and set canonical homepage URL `https://github.com/ellmos-ai/hook-master#readme`.
 - **PEP 621 Keywords Saturation:** Aligned `pyproject.toml` keywords to 20 saturated terms in 1-to-1 parity with GitHub topics; preserved strict version freeze at `0.2.0` (T-20260920-167562623).

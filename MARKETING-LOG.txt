@@ -152,3 +152,40 @@ German (DE):
     - Added new contract tests validating 18-point navigation parity, dual reciprocal HTML anchors,
       target personas [PERSONA-01]..[PERSONA-04], 10-dimension comparative matrix, 20-keyword PEP 621 saturation,
       and Level 1 SBOM Invariant Matrix.
+
+================================================================================
+8. IMPLEMENTED PFAD A REPOSITORY HYGIENE & CI LIFECYCLE HARDENING (2026-09-29)
+================================================================================
+[x] CI Lifecycle Workflows & Issue Governance:
+    - Provisioned `.github/workflows/auto-assign.yml` (actions/github-script@v7, 5-minute timeout, concurrency cancel-in-progress, least-privilege permissions: pull-requests: write, issues: write).
+    - Provisioned `.github/workflows/label-sync.yml` (EndBug/label-sync@v2, 5-minute timeout, concurrency cancel-in-progress, least-privilege permissions: issues: write).
+    - Provisioned `.github/labels.yml` with 11 standard governance labels per GOVERNANCE.md §4.2 (bug, enhancement, good first issue, help wanted, documentation, duplicate, wontfix, priority: high, priority: low, needs-triage, stale).
+    - Maintained and hardened existing `ci.yml`, `stale.yml`, and `welcome.yml` workflows.
+[x] Multi-Host Cloud-Sync & Fleet Lock Defense (.gitignore):
+    - Added multi-host tokens: `*-IDEAPAD*`, `*_WORKSTATION*`, `*_WORKSTATION-LG*`, `*-WORKSTATION.*`, `*-WORKSTATION-LG.*`.
+    - Added test/cache exclusions: `.pytest_temp/`, `.pytest_tmp*/`, `*.swo`, `Desktop.ini`.
+[x] Level 1 SBOM Plain-Text Companion & Re-Audit (THIRD_PARTY_LICENSES.txt):
+    - Created companion plain-text SBOM inventory `THIRD_PARTY_LICENSES.txt` Stand 2026-09-29.
+    - Verified all 10 governance and runtime invariants:
+      INV-LOCAL-01 (100% Local-First & Zero Egress), INV-SEC-02 (Unprivileged User Execution RunAsInvoker),
+      INV-PTR-03 (Pointer-Only Registry Architecture), INV-EXEC-04 (Executable Code Trust Class Separation),
+      INV-MAT-05 (One-Way Materialization Invariant), INV-CONSENT-06 (Fail-Closed Consent Allowlist),
+      INV-DOC-07 (Comprehensive Hook-Doctor Diagnostics), INV-TRANS-08 (Optional Transport Independence),
+      INV-LIC-09 (100% Permissive Audited Dependency Stack), INV-SLA-10 (48h Response, 5-Day Triage SLA).
+    - Re-audited `THIRD_PARTY_LICENSES.md` as of 2026-09-29.
+[x] Attribution Notice Synchronization (NOTICE):
+    - Updated canonical root `NOTICE` file with cross-references to both `THIRD_PARTY_LICENSES.md` and `THIRD_PARTY_LICENSES.txt`.
+[x] PEP 621 Standard Packaging & Pytest Hardening (pyproject.toml):
+    - Added `THIRD_PARTY_LICENSES.txt` to `license-files` whitelist.
+    - Added `"Third-Party Licenses (Text)"` endpoint under `[project.urls]`.
+    - Extended `norecursedirs` with `.pytest_temp`, `.pytest_tmp*`, `.turbo`, `.nyc_output`.
+    - Preserved strict version freeze discipline at version = "0.2.0" per T-20260920-167562623.
+[x] Documentation & Badges:
+    - Updated `README.md` and `README_de.md` badges to Verified `2026--09--29`.
+    - Added companion text file references to Sections 17 and 18.
+[x] AI Agent Discovery & Indexing (llms.txt):
+    - Updated `Last-checked` timestamp to `2026-09-29`.
+    - Added references to `THIRD_PARTY_LICENSES.txt` and `.github/labels.yml`.
+[x] Extended Contract Test Suite (tests/test_metadata.py):
+    - Added contract tests validating auto-assign.yml, label-sync.yml, labels.yml, plain-text SBOM companion,
+      extended .gitignore fleet guards, PEP 621 metadata alignment, and audited dates.
