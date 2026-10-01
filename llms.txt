@@ -5,7 +5,7 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-09-29
+Last-checked: 2026-10-01
 Version: 0.2.0
 Tests: 118 passed (pytest, tests/)
 License: MIT
@@ -29,6 +29,9 @@ Statutory-Notice: § 521 BGB German statutory liability limitation
   gate preventing unauthorized or unreviewed hook scripts from being materialized.
 - Hook-Doctor diagnostics (`doctor [--id <id>] [--timing]`): checks hash match,
   `py_compile` syntax integrity, mtime drift, and agent config JSON/TOML validity.
+- Four-View Architectural Topology projection (Section 05 of README.md / README_de.md):
+  rigorous mapping across caller runtimes, sovereign dispatch engine, pointer persistence
+  ledger, and unprivileged air-gap defense perimeter.
 - Fully standalone: works with zero network access and without
   system-gap-master installed. The optional `export-sync-view` command
   publishes a read-only metadata view into an existing `.SYNC/hooks/`

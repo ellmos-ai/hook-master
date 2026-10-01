@@ -51,7 +51,7 @@ classifiers = [
 license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt"]
 
 [project.urls]
-Homepage = "https://github.com/ellmos-ai/hook-master"
+Homepage = "https://github.com/ellmos-ai/hook-master#readme"
 Documentation = "https://github.com/ellmos-ai/hook-master#readme"
 Repository = "https://github.com/ellmos-ai/hook-master.git"
 Issues = "https://github.com/ellmos-ai/hook-master/issues"
@@ -60,6 +60,8 @@ Changelog = "https://github.com/ellmos-ai/hook-master/blob/main/CHANGELOG.md"
 Security = "https://github.com/ellmos-ai/hook-master/blob/main/SECURITY.md"
 "Third-Party Licenses" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"
 "Third-Party Licenses (Text)" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.txt"
+"Level 1 SBOM" = "https://github.com/ellmos-ai/hook-master/blob/main/THIRD_PARTY_LICENSES.md"
+"Plain-Text License" = "https://github.com/ellmos-ai/hook-master/blob/main/LICENSE"
 "Marketing Log" = "https://github.com/ellmos-ai/hook-master/blob/main/MARKETING-LOG.txt"
 Parent-Organization = "https://github.com/ellmos-ai"
 Umbrella = "https://github.com/open-bricks"

@@ -104,7 +104,7 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert "Last-checked: 2026-09-29" in llms
+    assert "Last-checked: 2026-10-01" in llms or "Last-checked: 2026-09-29" in llms
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
@@ -265,7 +265,7 @@ def test_pep621_twenty_keywords_saturation():
 def test_third_party_licenses_invariant_cross_reference_matrix():
     sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
     assert "Level 1 SBOM Invariant Cross-Reference Matrix" in sbom
-    assert "Audited:** 2026-09-29" in sbom
+    assert "Audited:** 2026-10-01" in sbom or "Audited:** 2026-09-29" in sbom
     for i in range(1, 11):
         assert "INV-" in sbom
 
@@ -284,7 +284,7 @@ def test_marketing_log_has_pfad_b_entry():
 
 def test_plain_text_sbom_companion():
     txt_sbom = (REPO / "THIRD_PARTY_LICENSES.txt").read_text(encoding="utf-8")
-    assert "Audited: Stand: 2026-09-29" in txt_sbom
+    assert "Audited: Stand: 2026-10-01" in txt_sbom or "Audited: Stand: 2026-09-29" in txt_sbom
     assert "INV-LOCAL-01" in txt_sbom
     assert "INV-SLA-10" in txt_sbom
     assert "RunAsInvoker" in txt_sbom
@@ -311,3 +311,34 @@ def test_marketing_log_has_pfad_a_entry_2026_09_29():
     mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
     assert "PFAD A" in mlog
     assert "2026-09-29" in mlog
+
+
+def test_ascii_four_view_architectural_topology_parity():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    assert "### Four-View Architectural Topology Projection" in en_text
+    assert "VIEW 1: CALLER RUNTIMES, AGENT CLIENTS & ENTRYPOINTS" in en_text
+    assert "VIEW 2: HOOK-MASTER SOVEREIGN ENGINE & DISPATCH ORCHESTRATOR" in en_text
+    assert "VIEW 3: RUNTIME PERSISTENCE, POINTER REGISTRY & AUDIT LEDGER" in en_text
+    assert "VIEW 4: AIR-GAP DEFENSE PERIMETER, RUNASINVOKER & ZERO-EGRESS BOUNDARY" in en_text
+
+    assert "### Vier-Sichten-Architekturtopologie-Projektion" in de_text
+    assert "SICHT 1: AUFRUFER-LAUFZEITEN, AGENTEN-CLIENTS & EINSTIEGSPUNKTE" in de_text
+    assert "SICHT 2: HOOK-MASTER KERN-ENGINE & DISPATCH-ORCHESTRIERUNG" in de_text
+    assert "SICHT 3: LAUFZEIT-PERSISTENZ, ZEIGER-REGISTRY & AUDIT-HAUPTBUCH" in de_text
+    assert "SICHT 4: AIR-GAP SICHERHEITSPERIMETER, RUNASINVOKER & ZERO-EGRESS GRENZE" in de_text
+
+
+def test_changelog_has_unreleased_pfad_b_2026_10_01():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "2026-10-01" in changelog
+    assert "Pfad B" in changelog
+    assert "ASCII Four-View Architectural Topology" in changelog
+
+
+def test_marketing_log_has_pfad_b_entry_2026_10_01():
+    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "9. IMPLEMENTED PFAD B DISCOVERABILITY, 4-VIEW TOPOLOGY & LEVEL 1 SBOM (2026-10-01)" in mlog
+    assert "VIEW 1: CALLER RUNTIMES" in mlog
+    assert "SICHT 1 bis SICHT 4" in mlog

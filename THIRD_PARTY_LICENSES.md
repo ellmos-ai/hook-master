@@ -1,7 +1,7 @@
 # Third-Party Licenses & Transparency Notice (Level 1 SBOM)
 
 > **Project:** `ellmos-ai/hook-master`<br>
-> **Audited:** 2026-09-29<br>
+> **Audited:** 2026-10-01<br>
 > **Repository License:** [MIT License](LICENSE)<br>
 > **Canonical Notice:** [NOTICE](NOTICE)<br>
 > **Plain-Text Companion:** [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt)<br>

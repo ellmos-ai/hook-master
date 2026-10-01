@@ -189,3 +189,35 @@ German (DE):
 [x] Extended Contract Test Suite (tests/test_metadata.py):
     - Added contract tests validating auto-assign.yml, label-sync.yml, labels.yml, plain-text SBOM companion,
       extended .gitignore fleet guards, PEP 621 metadata alignment, and audited dates.
+
+================================================================================
+9. IMPLEMENTED PFAD B DISCOVERABILITY, 4-VIEW TOPOLOGY & LEVEL 1 SBOM (2026-10-01)
+================================================================================
+[x] ASCII Four-View Architectural Topology Projection (Section 05 of README.md & README_de.md):
+    - VIEW 1: CALLER RUNTIMES, AGENT CLIENTS & ENTRYPOINTS (Claude Code, OpenAI Codex, Antigravity, Kimi Code)
+    - VIEW 2: HOOK-MASTER SOVEREIGN ENGINE & DISPATCH ORCHESTRATOR (model.py, consent.py, materialize.py, doctor.py)
+    - VIEW 3: RUNTIME PERSISTENCE, POINTER REGISTRY & AUDIT LEDGER (library/*.py, registry.json, allowlist.json, THIRD_PARTY_LICENSES.txt)
+    - VIEW 4: AIR-GAP DEFENSE PERIMETER, RUNASINVOKER & ZERO-EGRESS BOUNDARY (INV-LOCAL-01, INV-SEC-02, INV-PTR-03, INV-MAT-05, INV-LIC-09, § 521 BGB, 48h SLA)
+    - Full German language parity: SICHT 1 bis SICHT 4 in README_de.md.
+[x] Level 1 SBOM Plain-Text Companion & Re-Audit (THIRD_PARTY_LICENSES.txt & THIRD_PARTY_LICENSES.md):
+    - Re-audited and affirmed Level 1 SBOM plain-text inventory Stand 2026-10-01.
+    - Verified all 10 governance and runtime invariants:
+      INV-LOCAL-01 (100% Local-First & Zero Egress), INV-SEC-02 (Unprivileged User Execution RunAsInvoker),
+      INV-PTR-03 (Pointer-Only Registry Architecture), INV-EXEC-04 (Executable Code Trust Class Separation),
+      INV-MAT-05 (One-Way Materialization Invariant), INV-CONSENT-06 (Fail-Closed Consent Allowlist),
+      INV-DOC-07 (Comprehensive Hook-Doctor Diagnostics), INV-TRANS-08 (Optional Transport Independence),
+      INV-LIC-09 (100% Permissive Audited Dependency Stack), INV-SLA-10 (48h Response, 5-Day Triage SLA).
+[x] PEP 621 Standard Packaging & URLs (pyproject.toml):
+    - Registered canonical "Level 1 SBOM" and "Plain-Text License" endpoints in [project.urls].
+    - Aligned Homepage URL with #readme anchor.
+    - Preserved strict version freeze discipline at version = "0.2.0" per T-20260920-167562623.
+[x] Documentation & Badges:
+    - Synchronized badges across README.md and README_de.md:
+      Verified: 2026-10-01, Level 1 SBOM: Plain Text Audited / Klartext-Geprüft, tests-118 passed.
+[x] AI Agent Context Indexing (llms.txt):
+    - Updated Last-checked timestamp to 2026-10-01.
+    - Documented Four-View Architectural Topology projection in Section 05.
+[x] Extended Contract Test Suite (tests/test_metadata.py):
+    - Added automated contract tests validating ASCII 4-view topology projection parity (EN/DE),
+      Level 1 SBOM companion recency Stand 2026-10-01, Section 9 MARKETING-LOG presence,
+      and CHANGELOG Pfad B entry recency.

@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-118%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verifiziert](https://img.shields.io/badge/verifiziert-2026--09--29-brightgreen.svg)](llms.txt) [![Sicherheits-SLA](https://img.shields.io/badge/sicherheits--sla-48h%20antwort-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-118%20bestanden-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Plattform](https://img.shields.io/badge/plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Datenschutz](https://img.shields.io/badge/datenschutz-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Sicherheit](https://img.shields.io/badge/sicherheit-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ökosystem](https://img.shields.io/badge/ökosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Dachverband](https://img.shields.io/badge/dachverband-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Klartext--Gepr%C3%BCft-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verifiziert](https://img.shields.io/badge/verifiziert-2026--10--01-brightgreen.svg)](llms.txt) [![Sicherheits-SLA](https://img.shields.io/badge/sicherheits--sla-48h%20antwort-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -120,6 +120,51 @@ Die folgende Matrix vergleicht `hook-master` mit vier verbreiteten Ansätzen anh
 
 <a id="sec-05"></a><a id="5-visuelle-architektur-topologie"></a><a id="systemarchitektur"></a>
 ## 5. Visuelle Architektur-Topologie
+
+### Vier-Sichten-Architekturtopologie-Projektion
+
+```text
++-------------------------------------------------------------------------------+
+|  SICHT 1: AUFRUFER-LAUFZEITEN, AGENTEN-CLIENTS & EINSTIEGSPUNKTE              |
+|  - Agenten-Laufzeitumgebungen: Claude Code, OpenAI Codex, Antigravity, Kimi   |
+|  - Lebenszyklus-Hook-Trigger: PreToolUse, UserPromptSubmit, SessionStart      |
+|  - Entwickler-CLI: hook-master (register, deploy, diff, status, doctor)       |
+|  - CI/CD-Qualitäts-Gates & automatisierte Regressions-Testsuiten              |
++---------------------------------------+---------------------------------------+
+                                        | ruft CLI auf / triggert Hooks
+                                        v
++-------------------------------------------------------------------------------+
+|  SICHT 2: HOOK-MASTER KERN-ENGINE & DISPATCH-ORCHESTRIERUNG                   |
+|  - Manifest-Parser & Modell-Validierung: hook_master.model (JSON-Schema)      |
+|  - Fail-Closed Consent-Auswertung: hook_master.consent (allowlist.json, HE2)  |
+|  - Deterministische Einweg-Materialisierung: hook_master.materialize (Kopie)  |
+|  - Kryptografische Digest-Engine: SHA-256-Integritätsprüfung (Hash-Parität)   |
+|  - Diagnose-Doctor-Suite: hook_master.doctor (Syntax, Drift, Ziel-Configs)    |
++---------------------------------------+---------------------------------------+
+                                        | registriert / validiert & auditiert
+                                        v
++-------------------------------------------------------------------------------+
+|  SICHT 3: LAUFZEIT-PERSISTENZ, ZEIGER-REGISTRY & AUDIT-HAUPTBUCH              |
+|  - Kanonische Skriptablage: library/*.py (unveränderliche Source of Truth)    |
+|  - Zeiger-Registry: ~/.hook-master/registry.json (ausschließlich Zeiger)     |
+|  - Kryptografische Consent-Allowlist: ~/.hook-master/allowlist.json (Zustand) |
+|  - Zielkonfigurationen der Agenten: ~/.claude/hooks/, ~/.codex/hooks.json     |
+|  - Level 1 SBOM Begleit-Ledger: THIRD_PARTY_LICENSES.txt (Stand 2026-10-01)   |
++---------------------------------------+---------------------------------------+
+                                        | begrenzt / verifiziert & schützt
+                                        v
++-------------------------------------------------------------------------------+
+|  SICHT 4: AIR-GAP SICHERHEITSPERIMETER, RUNASINVOKER & ZERO-EGRESS GRENZE     |
+|  - 100% Offline-Betrieb & Null Netzwerk-Sockets (INV-LOCAL-01)                |
+|  - Unprivilegierte Non-Elevation-Sicherheitsrichtlinie (INV-SEC-02, User-Mode)|
+|  - Reines Zeiger-Speicherprinzip (INV-PTR-03, keine Inline-Skriptkörper)      |
+|  - Strikte Einweg-Materialisierungsgrenze (INV-MAT-05, kein Rückwärts-Drift) |
+|  - Zero-Copyleft-Isolationsgarantie: 100% MIT & Python-Standardbibliothek     |
+|  - Gesetzlicher Haftungsausschluss (§ 521 BGB) & verbindliche 48h Security SLA|
++-------------------------------------------------------------------------------+
+```
+
+### Systemarchitektur-Fluss
 
 ```mermaid
 graph TD

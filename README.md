@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-118%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Verified](https://img.shields.io/badge/verified-2026--09--29-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-118%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Plain%20Text%20Audited-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verified](https://img.shields.io/badge/verified-2026--10--01-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -120,6 +120,51 @@ The following matrix compares `hook-master` against four common industry alterna
 
 <a id="sec-05"></a><a id="5-visual-architecture-topology"></a><a id="system-architecture"></a>
 ## 5. Visual Architecture Topology
+
+### Four-View Architectural Topology Projection
+
+```text
++-------------------------------------------------------------------------------+
+|  VIEW 1: CALLER RUNTIMES, AGENT CLIENTS & ENTRYPOINTS                         |
+|  - Agent Execution Runtimes: Claude Code, OpenAI Codex, Antigravity, Kimi Code |
+|  - Lifecycle Hook Triggers: PreToolUse, UserPromptSubmit, SessionStart, PostTool|
+|  - Developer CLI Suite: hook-master (register, deploy, diff, status, doctor)  |
+|  - CI/CD Quality Gates & Automated Regression Test Suites                     |
++---------------------------------------+---------------------------------------+
+                                        | invokes CLI / triggers hooks
+                                        v
++-------------------------------------------------------------------------------+
+|  VIEW 2: HOOK-MASTER SOVEREIGN ENGINE & DISPATCH ORCHESTRATOR                 |
+|  - Manifest Parser & Entry Model Validator: hook_master.model (JSON Schema)   |
+|  - Fail-Closed Consent Evaluator: hook_master.consent (allowlist.json, HE2)   |
+|  - Deterministic One-Way Materializer: hook_master.materialize (one-way copy) |
+|  - Cryptographic Digest Engine: SHA-256 integrity verification (hash parity)  |
+|  - Diagnostic Doctor Suite: hook_master.doctor (syntax, mtime drift, configs) |
++---------------------------------------+---------------------------------------+
+                                        | registers / validates & audits
+                                        v
++-------------------------------------------------------------------------------+
+|  VIEW 3: RUNTIME PERSISTENCE, POINTER REGISTRY & AUDIT LEDGER                 |
+|  - Canonical Script Storage: library/*.py (immutable source of truth)        |
+|  - Pointer Registry Ledger: ~/.hook-master/registry.json (pointers only)    |
+|  - Cryptographic Consent Allowlist: ~/.hook-master/allowlist.json (HE2 state) |
+|  - Target Agent Manifests: ~/.claude/hooks/, ~/.codex/hooks.json, ~/.gemini/  |
+|  - Level 1 SBOM Companion Ledger: THIRD_PARTY_LICENSES.txt (Stand 2026-10-01) |
++---------------------------------------+---------------------------------------+
+                                        | bounds / verifies & protects
+                                        v
++-------------------------------------------------------------------------------+
+|  VIEW 4: AIR-GAP DEFENSE PERIMETER, RUNASINVOKER & ZERO-EGRESS BOUNDARY       |
+|  - 100% Local-First Offline Operation & Zero Network Sockets (INV-LOCAL-01)   |
+|  - Unprivileged Non-Elevation Security Policy (INV-SEC-02, RunAsInvoker)     |
+|  - Pointer-Only Storage Invariant (INV-PTR-03, zero inline executable bodies) |
+|  - Strict One-Way Materialization Boundary (INV-MAT-05, no backward drift)    |
+|  - Zero-Copyleft Isolation Guarantee: 100% MIT & Python Standard Library     |
+|  - Statutory Notice § 521 BGB Gefälligkeitsrecht & 48h Security Response SLA  |
++-------------------------------------------------------------------------------+
+```
+
+### System Architecture Flow
 
 ```mermaid
 graph TD
