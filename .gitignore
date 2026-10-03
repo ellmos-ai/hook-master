@@ -7,6 +7,9 @@ LOCK.permissions.json
 LOCK.user.*
 LOCK.until.*
 LOCK.condition.*
+LOCK.dev.*
+LOCK.antigravity.*
+LOCK.bugsearch.*
 *.lock
 .automation-lock
 uv.lock
@@ -28,6 +31,8 @@ uv.lock
 *-ASUS-GEI*
 *-LAPTOP*
 *-IDEAPAD*
+*-IDEAPAD-GEI*
+*-IDEAPAD-GEI.*
 *-Mac Studio*
 *-MacBook*
 * (kopie)*
@@ -37,6 +42,8 @@ uv.lock
 *.sync-temp-*
 *.orig
 *.rej
+TASKPLAN_*.md
+*-TASKPLAN*
 
 # Python packaging & virtual environments
 __pycache__/
@@ -57,6 +64,7 @@ dist/
 .coverage.*
 htmlcov/
 .wheel-smoke/
+wheelhouse/
 .tox/
 .mypy_cache/
 .hypothesis/
@@ -80,6 +88,7 @@ htmlcov/
 
 # OS & IDE
 Thumbs.db
+ehthumbs.db
 Desktop.ini
 .DS_Store
 .idea/

@@ -13,7 +13,7 @@ def test_required_house_files_exist():
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
         "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt",
-        "MARKETING-LOG.txt", "TODO.md",
+        "MARKETING-LOG.txt", "TODO.md", "CONTRIBUTING.md",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -104,7 +104,7 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert "Last-checked: 2026-10-01" in llms or "Last-checked: 2026-09-29" in llms
+    assert any(s in llms for s in ("Last-checked: 2026-10-03", "Last-checked: 2026-10-01", "Last-checked: 2026-09-29"))
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
@@ -265,7 +265,7 @@ def test_pep621_twenty_keywords_saturation():
 def test_third_party_licenses_invariant_cross_reference_matrix():
     sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
     assert "Level 1 SBOM Invariant Cross-Reference Matrix" in sbom
-    assert "Audited:** 2026-10-01" in sbom or "Audited:** 2026-09-29" in sbom
+    assert any(s in sbom for s in ("Audited:** 2026-10-03", "Audited:** 2026-10-01", "Audited:** 2026-09-29"))
     for i in range(1, 11):
         assert "INV-" in sbom
 
@@ -284,7 +284,7 @@ def test_marketing_log_has_pfad_b_entry():
 
 def test_plain_text_sbom_companion():
     txt_sbom = (REPO / "THIRD_PARTY_LICENSES.txt").read_text(encoding="utf-8")
-    assert "Audited: Stand: 2026-10-01" in txt_sbom or "Audited: Stand: 2026-09-29" in txt_sbom
+    assert any(s in txt_sbom for s in ("Audited: Stand: 2026-10-03", "Audited: Stand: 2026-10-01", "Audited: Stand: 2026-09-29"))
     assert "INV-LOCAL-01" in txt_sbom
     assert "INV-SLA-10" in txt_sbom
     assert "RunAsInvoker" in txt_sbom
@@ -342,3 +342,57 @@ def test_marketing_log_has_pfad_b_entry_2026_10_01():
     assert "9. IMPLEMENTED PFAD B DISCOVERABILITY, 4-VIEW TOPOLOGY & LEVEL 1 SBOM (2026-10-01)" in mlog
     assert "VIEW 1: CALLER RUNTIMES" in mlog
     assert "SICHT 1 bis SICHT 4" in mlog
+
+
+def test_bilingual_contributing_guidelines_parity():
+    cb = (REPO / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    assert "## English" in cb
+    assert "## Deutsch" in cb
+    for inv in [
+        "INV-LOCAL-01", "INV-SEC-02", "INV-PTR-03", "INV-EXEC-04", "INV-MAT-05",
+        "INV-CONSENT-06", "INV-DOC-07", "INV-TRANS-08", "INV-LIC-09", "INV-SLA-10"
+    ]:
+        assert inv in cb, f"Missing {inv} in CONTRIBUTING.md"
+    assert "RunAsInvoker" in cb
+    assert "Plan D" in cb
+    assert "0.2.0" in cb
+    assert "521 BGB" in cb
+
+
+def test_contributing_urls_in_pyproject_and_readmes():
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'Contributing = "https://github.com/ellmos-ai/hook-master/blob/main/CONTRIBUTING.md"' in pyproject
+
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    assert "CONTRIBUTING.md" in en_text
+    assert "CONTRIBUTING.md" in de_text
+
+
+def test_dependabot_workflow_configured():
+    dep_file = REPO / ".github" / "dependabot.yml"
+    assert dep_file.is_file(), "Missing .github/dependabot.yml"
+    content = dep_file.read_text(encoding="utf-8")
+    assert 'package-ecosystem: "github-actions"' in content
+    assert 'interval: "weekly"' in content
+
+
+def test_gitignore_fleet_and_lock_patterns_hardened():
+    gi = (REPO / ".gitignore").read_text(encoding="utf-8")
+    for pattern in [
+        "*-IDEAPAD-GEI*", "TASKPLAN_*.md", "*-TASKPLAN*",
+        "ehthumbs.db", "wheelhouse/", "LOCK.dev.*", "LOCK.antigravity.*", "LOCK.bugsearch.*"
+    ]:
+        assert pattern in gi, f"Pattern {pattern} missing in .gitignore"
+
+
+def test_changelog_has_unreleased_pfad_a_2026_10_03():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "2026-10-03" in changelog
+    assert "Pfad A" in changelog
+
+
+def test_marketing_log_has_pfad_a_entry_2026_10_03():
+    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    assert "10. IMPLEMENTED PFAD A REPOSITORY HYGIENE, BILINGUAL CONTRIBUTING & CONTRACT TESTS (2026-10-03)" in mlog

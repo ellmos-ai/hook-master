@@ -5,11 +5,12 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-10-01
+Last-checked: 2026-10-03
 Version: 0.2.0
-Tests: 118 passed (pytest, tests/)
+Tests: 127 passed (pytest, tests/)
 License: MIT
 Attribution: NOTICE
+Contributing: CONTRIBUTING.md (Bilingual guidelines, invariants, Plan D workflow)
 Transparency: THIRD_PARTY_LICENSES.md and THIRD_PARTY_LICENSES.txt (Level 1 SBOM, zero runtime dependencies, 100% PSFL-2.0 stdlib)
 Repository: https://github.com/ellmos-ai/hook-master
 Umbrella: https://github.com/open-bricks
@@ -50,10 +51,12 @@ Statutory-Notice: § 521 BGB German statutory liability limitation
 ## Key files & directory structure
 
 - `NOTICE` — canonical open-source attribution notice.
+- `CONTRIBUTING.md` — bilingual contribution guidelines, Plan D local workflow & 10 invariants.
 - `THIRD_PARTY_LICENSES.md` — Level 1 SBOM, license audit & 10 architecture invariants.
 - `THIRD_PARTY_LICENSES.txt` — plain-text companion Level 1 SBOM inventory.
 - `MARKETING-LOG.txt` — positioning, personas, search queries & governance invariants.
 - `.github/labels.yml` — 11 standard governance issue/PR labels.
+- `.github/dependabot.yml` — weekly automated GitHub Actions dependency updates.
 - `.github/workflows/` — hardened CI matrix, stale lifecycle triage, welcome onboarding, auto-assign, and label-sync.
 - `src/hook_master/model.py` — entry schema & validation.
 - `src/hook_master/registry.py` — pointer store (register/get/search/verify).

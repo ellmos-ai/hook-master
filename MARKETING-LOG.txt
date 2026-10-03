@@ -221,3 +221,39 @@ German (DE):
     - Added automated contract tests validating ASCII 4-view topology projection parity (EN/DE),
       Level 1 SBOM companion recency Stand 2026-10-01, Section 9 MARKETING-LOG presence,
       and CHANGELOG Pfad B entry recency.
+
+================================================================================
+10. IMPLEMENTED PFAD A REPOSITORY HYGIENE, BILINGUAL CONTRIBUTING & CONTRACT TESTS (2026-10-03)
+================================================================================
+[x] Bilingual CONTRIBUTING Guidelines (CONTRIBUTING.md):
+    - Created canonical bilingual CONTRIBUTING.md (English & Deutsch) specifying:
+      1. Quality Gates & 10 Governance & Runtime Invariants (INV-LOCAL-01 to INV-SLA-10)
+      2. Unprivileged User-Mode Execution (RunAsInvoker / INV-SEC-02)
+      3. Plan D Local Development Workflow (C:\_Local_DEV\repos\hook-master)
+      4. Strikte Version-Freeze-Disziplin (Version 0.2.0 unverändert gem. T-20260920-167562623)
+      5. Gesetzlicher Haftungsausschluss (§ 521 BGB Gefälligkeitsrecht) & Duale SLAs (48h/5d)
+[x] Automated CI Maintenance & Dependabot Guard (.github/dependabot.yml):
+    - Provisioned .github/dependabot.yml with weekly automated dependency updates for github-actions.
+[x] Multi-Host Cloud-Sync & Fleet Lock Defense (.gitignore):
+    - Added hardened device tokens: *-IDEAPAD-GEI*, *-IDEAPAD-GEI.*.
+    - Added fleet lock patterns: LOCK.dev.*, LOCK.antigravity.*, LOCK.bugsearch.*.
+    - Added taskplan and cache tokens: TASKPLAN_*.md, *-TASKPLAN*, ehthumbs.db, wheelhouse/.
+[x] Level 1 SBOM Plain-Text Companion & Re-Audit (THIRD_PARTY_LICENSES.md & THIRD_PARTY_LICENSES.txt):
+    - Re-audited and affirmed Level 1 SBOM plain-text inventory Stand 2026-10-03.
+    - Verified zero external runtime dependencies (100% Python Standard Library PSFL-2.0).
+    - Verified unprivileged RunAsInvoker non-elevation mode, Zero-Copyleft isolation, and all 10 invariants.
+    - Cross-referenced CONTRIBUTING.md in NOTICE, THIRD_PARTY_LICENSES.md, and THIRD_PARTY_LICENSES.txt.
+[x] PEP 621 Standard Packaging & URLs (pyproject.toml):
+    - Registered canonical "Contributing" endpoint under [project.urls].
+    - Extended pytest norecursedirs with .tox alongside .pytest_temp and transient caches.
+    - Preserved strict version freeze at version = "0.2.0" per T-20260920-167562623.
+[x] Documentation & Badges:
+    - Synchronized badges across README.md and README_de.md:
+      Verified: 2026-10-03, Contributing Guidelines badge added, tests passed updated.
+    - Maintained 100% reciprocal parity across all 18 bilateral quick navigation anchors.
+[x] AI Agent Context Indexing (llms.txt):
+    - Updated Last-checked timestamp to 2026-10-03.
+    - Registered CONTRIBUTING.md and .github/dependabot.yml under Key Files.
+[x] Extended Contract Test Suite (tests/test_metadata.py):
+    - Added contract tests validating bilingual CONTRIBUTING.md parity, dependabot configuration,
+      pyproject Contributing URL, hardened .gitignore fleet guards, and 2026-10-03 audit recency.

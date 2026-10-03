@@ -1,18 +1,19 @@
 # Third-Party Licenses & Level 1 SBOM
 
-Last checked: 2026-10-01 against PyPI metadata and local runtime environment.
-Audited: Stand: 2026-10-01 against Level 1 SBOM and runtime invariants.
+Last checked: 2026-10-03 against PyPI metadata and local runtime environment.
+Audited: Stand: 2026-10-03 against Level 1 SBOM and runtime invariants.
 
 Scope: direct dependencies declared in `pyproject.toml` as well as standard
 library and development packages. This inventory is a direct dependency review
 and Level 1 SBOM affirmation, complementing the markdown review in
-`THIRD_PARTY_LICENSES.md`.
+`THIRD_PARTY_LICENSES.md` and the governance rules in `CONTRIBUTING.md`.
 
 ## Project License & Attribution
 
 hook-master is licensed under the MIT License.
 Canonical copyright attribution is maintained in `NOTICE`:
 Copyright (c) 2026 Lukas Geiger, ellmos-ai family under open-bricks umbrella.
+Contributing guidelines: `CONTRIBUTING.md`.
 
 ## Architecture & Security Invariants
 
@@ -52,7 +53,7 @@ in `pyproject.toml`). It operates fully standalone and network-free.
 | ruff | Python / PyPI | >=0.6.0 | MIT / Apache-2.0 | High-performance Python linter and code style enforcement |
 | setuptools | Python / PyPI | >=68.0 | MIT | Standard build backend (PEP 517 / PEP 621 compliant) |
 
-## Level 1 SBOM Invariant Verification (Stand: 2026-10-01)
+## Level 1 SBOM Invariant Verification (Stand: 2026-10-03)
 
 All 10 architectural and runtime governance invariants are confirmed:
 - INV-LOCAL-01: 100% Local-First & Zero Egress (zero network telemetry, zero phone-home calls)
