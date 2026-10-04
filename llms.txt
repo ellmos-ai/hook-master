@@ -7,7 +7,7 @@
 
 Last-checked: 2026-10-03
 Version: 0.2.0
-Tests: 127 passed (pytest, tests/)
+Tests: 134 passed (pytest, tests/)
 License: MIT
 Attribution: NOTICE
 Contributing: CONTRIBUTING.md (Bilingual guidelines, invariants, Plan D workflow)

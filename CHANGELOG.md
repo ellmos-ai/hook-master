@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- `library/starter_pack_hook.py`: SessionStart hook that injects the starter-pack recipe and entry skills (profile chain via `STARTER_PACK_PROFILE`, fail-open, `--measure` budget check) with 7 tests (`tests/test_starter_pack_hook.py`).
+
 ### Pfad A Repository Hygiene, Bilingual CONTRIBUTING, Dependabot Guard & Contract Tests (2026-10-03) [Pfad A]
 - **Bilingual CONTRIBUTING Guidelines (CONTRIBUTING.md):** Authored canonical bilingual `CONTRIBUTING.md` guidelines (English and Deutsch) specifying all 10 Governance and Runtime Invariants (`INV-LOCAL-01` to `INV-SLA-10`), unprivileged `RunAsInvoker` mode (`INV-SEC-02`), Plan D Local Development Workflow (`C:\_Local_DEV\repos\hook-master`), Version Freeze Discipline (`0.2.0` frozen per T-20260920-167562623), German statutory liability limitation (§ 521 BGB Gefälligkeitsrecht), and binding dual security SLAs (48h acknowledgment, 5-day triage).
 - **Automated CI Maintenance Guard (.github/dependabot.yml):** Provisioned `.github/dependabot.yml` configured for weekly automated GitHub Actions dependency updates.
