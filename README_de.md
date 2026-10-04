@@ -320,7 +320,7 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 <a id="sec-10"></a><a id="10-hook-doctor-diagnose-engine"></a><a id="hook-doctor"></a>
 ## 10. Hook-Doctor Diagnose-Engine
 
-Konzeptioneller Neuaufbau nach dem Hermes-Agenten-Muster (`hermes doctor`-Diagnostik + Erstnutzungs-Consent-Allowlist), keine Code-Übernahme — siehe `T-20260825-152496601`.
+Konzeptioneller Neuaufbau nach dem Hermes-Agenten-Muster (`hermes doctor`-Diagnostik + Erstnutzungs-Consent-Allowlist), keine Code-Übernahme.
 
 **`hook-master doctor [--id <id>] [--timing]`** leistet deutlich mehr als `verify`/`diff`:
 - Für jeden `kind=hook`-Eintrag: prüft Existenz der kanonischen Datei, SHA-256-Hash, Ausführbarkeit der Syntax (`py_compile` für `.py`-Quellen), Materialisierungszustand und mtime-Drift (erkennt manuelle Direkt-Edits an materialisierten Kopien).

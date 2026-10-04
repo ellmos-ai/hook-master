@@ -320,7 +320,7 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 <a id="sec-10"></a><a id="10-hook-doctor-diagnostic-engine"></a><a id="hook-doctor"></a>
 ## 10. Hook-Doctor Diagnostic Engine
 
-Concept rebuild after the Hermes-Agent pattern (`hermes doctor`-style diagnostics + first-use consent allowlist), not a code takeover — see `T-20260825-152496601`.
+Concept rebuild after the Hermes-Agent pattern (`hermes doctor`-style diagnostics + first-use consent allowlist), not a code takeover.
 
 **`hook-master doctor [--id <id>] [--timing]`** goes beyond `verify`/`diff`:
 - For every `kind=hook` entry: verifies canonical-file existence, SHA-256 hash integrity, syntax executability (`py_compile` for `.py` sources), materialization state, and mtime drift (detecting direct edits to deployed copies that bypass canonical source).
