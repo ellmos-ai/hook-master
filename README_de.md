@@ -362,6 +362,7 @@ Persistiert unter `~/.hook-master/allowlist.json` (oder konfigurierbar über `HO
 | [`source-resolver`](https://github.com/ellmos-ai/source-resolver) | Rollen-zu-Provider-Routing und Engine zur Fähigkeiten-Auflösung | `ellmos-ai` |
 | [`lock-master`](https://github.com/ellmos-ai/lock-master) | Zentralisierte Datei-Sperren und Multi-Agenten-Koordination | `ellmos-ai` |
 | [`ticket-master`](https://github.com/ellmos-ai/ticket-master) | Aufgabenverfolgung und Protokoll zur agentenübergreifenden Übergabe | `ellmos-ai` |
+| [coma](https://github.com/ellmos-ai/coma) | Lokales Jobdatei-Protokoll sowie Start und Statusabfrage von Agentenprozessen; getrennt von Hook-Registry, Einwilligung und Skript-Materialisierung. | `ellmos-ai` |
 | [`DevCenter`](https://github.com/dev-bricks/DevCenter) | Entwickler-Arbeitsplatz & zentralisierter Werkzeug-Launcher | `dev-bricks` |
 | [`CodeBox`](https://github.com/dev-bricks/CodeBox) | Isolierte Sandbox-Ausführungsumgebung für Agenten-Skripte | `dev-bricks` |
 | [`open-bricks`](https://github.com/open-bricks) | Dachorganisation zur Koordination quelloffener Module | `open-bricks` |
