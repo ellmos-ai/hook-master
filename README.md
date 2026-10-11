@@ -362,6 +362,7 @@ Stored at `~/.hook-master/allowlist.json` (or via `HOOK_MASTER_ALLOWLIST_PATH`):
 | [`source-resolver`](https://github.com/ellmos-ai/source-resolver) | Role-to-provider routing & capability resolution engine | `ellmos-ai` |
 | [`lock-master`](https://github.com/ellmos-ai/lock-master) | Centralized concurrency locks and multi-agent coordination | `ellmos-ai` |
 | [`ticket-master`](https://github.com/ellmos-ai/ticket-master) | Ticket tracking and inter-agent task handoff protocol | `ellmos-ai` |
+| [coma](https://github.com/ellmos-ai/coma) | Local job-file protocol and agent-process start/status lookup; separate from hook registration, consent, and script materialization. | `ellmos-ai` |
 | [`DevCenter`](https://github.com/dev-bricks/DevCenter) | Developer workspace & centralized tooling launcher | `dev-bricks` |
 | [`CodeBox`](https://github.com/dev-bricks/CodeBox) | Isolated sandbox execution environment for agent scripts | `dev-bricks` |
 | [`open-bricks`](https://github.com/open-bricks) | Umbrella organization coordinating open-source modules | `open-bricks` |

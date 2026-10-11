@@ -89,3 +89,7 @@ hook-master doctor [--timing]                 # deep diagnostics & compile bench
 hook registry, hook materialization, claude code hooks module, codex hooks
 cross-path, agent hook deployment, hook pointer registry, ellmos hook-master,
 hook doctor, hook consent gate, fail-closed hook deployment.
+
+## Related projects
+
+- [COMA](https://github.com/ellmos-ai/coma): Local job-file protocol and agent-process start/status lookup; separate from hook registration, consent, and script materialization.
