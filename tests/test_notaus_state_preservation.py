@@ -80,3 +80,29 @@ def test_wake_check_reports_preserved_park_markers(tmp_path, monkeypatch, capsys
     assert "Aufhebung ausstehend" in output
     assert "18 pausierte Goals" in output
     assert "3 geparkte Worker" in output
+
+
+def test_exhausted_week_keeps_notaus_although_five_hour_window_is_fresh(tmp_path, monkeypatch, capsys):
+    guard = _load_library_module("token_budget_guard_week_test", "token_budget_guard.py")
+    bridge = tmp_path / "token_budget.json"
+    state = tmp_path / "sparmodus_state.json"
+    guard_state = tmp_path / "token_budget_guard_state.json"
+    config = tmp_path / "token_budget_config.json"
+
+    _write(bridge, {"written_at": time.time(), "five_hour": {"used_percentage": 0},
+                    "seven_day": {"used_percentage": 97, "resets_at": 1792209600}})
+    _write(state, {"mode": "notaus", "prior_mode": "manual-spar"})
+    _write(guard_state, {})
+    _write(config, {})
+
+    monkeypatch.setattr(guard, "BRIDGE_PATH", str(bridge))
+    monkeypatch.setattr(guard, "SPARMODUS_STATE_PATH", str(state))
+    monkeypatch.setattr(guard, "GUARD_STATE_PATH", str(guard_state))
+    monkeypatch.setattr(guard, "CONFIG_PATH", str(config))
+    monkeypatch.setattr(sys, "stdin", io.StringIO('{"session_id":"test-session"}'))
+
+    assert guard.main() == 0
+
+    written = json.loads(state.read_text(encoding="utf-8"))
+    assert written["mode"] == "notaus"
+    assert "RUECKKEHR" not in capsys.readouterr().out

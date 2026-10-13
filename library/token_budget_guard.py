@@ -244,11 +244,15 @@ def main() -> int:
     if time.time() - float(written_at) > stale_after:
         return 0  # veralteter Snapshot -> stumm statt Annahme
 
-    used_pct = ((bridge.get("five_hour") or {}).get("used_percentage"))
-    resets_at = ((bridge.get("five_hour") or {}).get("resets_at"))
-    if used_pct is None:
-        used_pct = ((bridge.get("seven_day") or {}).get("used_percentage"))
-        resets_at = ((bridge.get("seven_day") or {}).get("resets_at"))
+    # Das strengere Fenster bindet: ein frisches 5h-Fenster (0 %) darf ein
+    # erschoepftes Wochenkontingent nicht verdecken (Notaus 2026-10-13 wurde
+    # bei 7d 97 % faelschlich aufgehoben, weil nur five_hour gelesen wurde).
+    used_pct, resets_at = None, None
+    for window in ("five_hour", "seven_day"):
+        entry = bridge.get(window) or {}
+        value = entry.get("used_percentage")
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and (used_pct is None or value > used_pct):
+            used_pct, resets_at = value, entry.get("resets_at")
     if used_pct is None:
         return 0  # Konto ohne rate_limits-Feld (kein Pro/Max) -> stumm
 
