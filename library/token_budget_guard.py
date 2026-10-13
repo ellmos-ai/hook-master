@@ -68,6 +68,13 @@ DEFAULT_THRESHOLDS = {
     "sparmodus_used_pct": 80.0,
     "notaus_used_pct": 90.0,
 }
+# Wochenfenster (seven_day) mit eigenen Schwellen [U 2026-10-13]: <=10 % Rest
+# haelt den Sparmodus, <=3 % Rest den Notaus; darueber hebt die Woche nichts.
+DEFAULT_WEEKLY_THRESHOLDS = {
+    "kurztext_used_pct": 90.0,
+    "sparmodus_used_pct": 90.0,
+    "notaus_used_pct": 97.0,
+}
 DEFAULT_STALE_AFTER_SECONDS = 30 * 60
 DEFAULT_REMIND_EVERY_N_PROMPTS = 20
 
@@ -158,6 +165,20 @@ def _load_thresholds() -> tuple[dict, int, int]:
     return thresholds, stale_after, remind_every
 
 
+def _load_weekly_thresholds() -> dict:
+    """Schwellen fuer das Wochenfenster aus `thresholds_seven_day` (fail-open auf Defaults)."""
+    cfg = _read_json(CONFIG_PATH)
+    weekly = dict(DEFAULT_WEEKLY_THRESHOLDS)
+    raw = cfg.get("thresholds_seven_day") if isinstance(cfg.get("thresholds_seven_day"), dict) else {}
+    for key in DEFAULT_WEEKLY_THRESHOLDS:
+        try:
+            if raw.get(key) is not None:
+                weekly[key] = float(raw[key])
+        except (TypeError, ValueError):
+            pass
+    return weekly
+
+
 def _stage_for(used_pct: float, thresholds: dict) -> int:
     if used_pct >= thresholds["notaus_used_pct"]:
         return 3
@@ -220,8 +241,8 @@ def _compute_transition(mode: str, stage: int) -> str | None:
             return "off"  # Auto-Ende bei voller Erholung
         return None  # auto-spar bleibt bewaffnet; manual-spar bei Stufe 1/2 unveraendert
     if mode == "notaus":
-        if stage == 0:
-            return "__RECOVER__"  # Ziel wird aus prior_mode aufgeloest
+        if stage < 3:
+            return "__RECOVER__"  # Ziel aus prior_mode; Stufe 2 haelt mindestens den Sparmodus
         return None
     return None
 
@@ -236,6 +257,7 @@ def main() -> int:
     session_id = str(payload.get("session_id") or "unknown")
 
     thresholds, stale_after, remind_every = _load_thresholds()
+    weekly_thresholds = _load_weekly_thresholds()
 
     bridge = _read_json(BRIDGE_PATH)
     written_at = bridge.get("written_at")
@@ -244,24 +266,22 @@ def main() -> int:
     if time.time() - float(written_at) > stale_after:
         return 0  # veralteter Snapshot -> stumm statt Annahme
 
-    # Das strengere Fenster bindet: ein frisches 5h-Fenster (0 %) darf ein
-    # erschoepftes Wochenkontingent nicht verdecken (Notaus 2026-10-13 wurde
-    # bei 7d 97 % faelschlich aufgehoben, weil nur five_hour gelesen wurde).
-    used_pct, resets_at = None, None
-    for window in ("five_hour", "seven_day"):
+    # Jedes Fenster wird gegen seine eigenen Schwellen gestuft; die strengere
+    # Stufe bindet. Ein frisches 5h-Fenster (0 %) darf ein erschoepftes
+    # Wochenkontingent nicht verdecken (Notaus 2026-10-13 wurde bei 7d 97 %
+    # faelschlich aufgehoben, weil nur five_hour gelesen wurde).
+    stage, used_pct, resets_at, window_label = None, None, None, "5h"
+    for window, limits, label in (("five_hour", thresholds, "5h"), ("seven_day", weekly_thresholds, "Wochen")):
         entry = bridge.get(window) or {}
         value = entry.get("used_percentage")
-        if isinstance(value, (int, float)) and not isinstance(value, bool) and (used_pct is None or value > used_pct):
-            used_pct, resets_at = value, entry.get("resets_at")
-    if used_pct is None:
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            continue
+        window_stage = _stage_for(float(value), limits)
+        # Gleichstand ueber 0: das spaeter zuruecksetzende Wochenfenster ist der konservative Weckpunkt.
+        if stage is None or window_stage > stage or (window_stage == stage and window_stage > 0):
+            stage, used_pct, resets_at, window_label = window_stage, float(value), entry.get("resets_at"), label
+    if stage is None:
         return 0  # Konto ohne rate_limits-Feld (kein Pro/Max) -> stumm
-
-    try:
-        used_pct = float(used_pct)
-    except (TypeError, ValueError):
-        return 0
-
-    stage = _stage_for(used_pct, thresholds)
     remaining2 = max(0.0, 100.0 - thresholds["sparmodus_used_pct"])
     remaining3 = max(0.0, 100.0 - thresholds["notaus_used_pct"])
 
@@ -311,19 +331,21 @@ def main() -> int:
             previous_sparmodus_state = sparmodus_state
             if target == "__RECOVER__":
                 recover_to = sparmodus_state.get("prior_mode") or "off"
+                if stage == 2 and recover_to == "off":
+                    recover_to = "manual-spar"  # Sparschwelle noch erreicht: nur der Notaus faellt
                 sparmodus_state = _preserve_park_fields(previous_sparmodus_state, {
                     "mode": recover_to,
                     "prior_mode": None,
                     "set_at": time.strftime("%Y-%m-%d %H:%M"),
                     "set_by": "hook",
-                    "reason": f"Automatische Rueckkehr aus notaus, 5h-Stand {used_pct:.0f}% (erholt)",
+                    "reason": f"Automatische Rueckkehr aus notaus, {window_label}-Stand {used_pct:.0f}% (erholt)",
                     "wake_at": None,
                     "resets_at": None,
                     "leader_only": None,
                 })
                 pending_hint = _pending_resume_hint(sparmodus_state)
                 message = (
-                    f"AUTOMATISCHE RUECKKEHR aus NOTAUS (5h-Stand {used_pct:.0f}%, "
+                    f"AUTOMATISCHE RUECKKEHR aus NOTAUS ({window_label}-Stand {used_pct:.0f}%, "
                     f"erholt) -> neuer Modus '{recover_to}'. Fuehre JETZT Abschnitt "
                     "'Aufheben' aus Skill notaus aus: notaus_state-Vermerk ist "
                     "bereits gesetzt, aber USMC-RESUME lesen+fortschreiben, "
@@ -339,7 +361,7 @@ def main() -> int:
                     "prior_mode": mode,
                     "set_at": time.strftime("%Y-%m-%d %H:%M"),
                     "set_by": "hook",
-                    "reason": f"Automatische Eskalation aus '{mode}', 5h-Stand {used_pct:.0f}%",
+                    "reason": f"Automatische Eskalation aus '{mode}', {window_label}-Stand {used_pct:.0f}%",
                     "wake_at": wake_at,
                     "resets_at": resets_at if isinstance(resets_at, (int, float)) else None,
                     "leader_only": leader_only,
@@ -350,7 +372,7 @@ def main() -> int:
                     else "kein bekannter Reset-Zeitpunkt -> 5h-Leader-Ping"
                 )
                 message = (
-                    f"AUTOMATISCHE ESKALATION -> NOTAUS (5h-Stand {used_pct:.0f}%, "
+                    f"AUTOMATISCHE ESKALATION -> NOTAUS ({window_label}-Stand {used_pct:.0f}%, "
                     f"aus Modus '{mode}'). {wake_hint}. Fuehre JETZT Ablauf 1.-3. "
                     "aus Skill notaus aus: USMC-State sichern, erreichbare "
                     "Teammates per SendMessage parken, Aufwachbedingung ist im "
@@ -362,9 +384,9 @@ def main() -> int:
                 )
                 sparmodus_state["set_at"] = time.strftime("%Y-%m-%d %H:%M")
                 sparmodus_state["set_by"] = "hook"
-                sparmodus_state["reason"] = f"Automatisches Ende manual-spar, 5h-Stand {used_pct:.0f}% (erholt)"
+                sparmodus_state["reason"] = f"Automatisches Ende manual-spar, {window_label}-Stand {used_pct:.0f}% (erholt)"
                 message = (
-                    f"AUTOMATISCHES ENDE Sparmodus (5h-Stand {used_pct:.0f}%, "
+                    f"AUTOMATISCHES ENDE Sparmodus ({window_label}-Stand {used_pct:.0f}%, "
                     "erholt) -> Modus 'off'. session_override in "
                     "orchestrator/config.json zuruecksetzen, sofern gesetzt."
                 )
@@ -374,7 +396,7 @@ def main() -> int:
             # Kein Modus-Uebergang, aber sichtbarer Stufenwechsel innerhalb des
             # aktiven Modus -- kurzer Statushinweis, keine Kurztext-Doppelmeldung.
             message = (
-                f"Sparmodus-System aktiv (Modus '{mode}'), 5h-Stand {used_pct:.0f}%. "
+                f"Sparmodus-System aktiv (Modus '{mode}'), {window_label}-Stand {used_pct:.0f}%. "
                 "Keine Modusaenderung noetig."
             )
             prompt_count = 0
