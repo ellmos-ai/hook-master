@@ -11,6 +11,23 @@ from .invariants import validate_timeout
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
 
+def powershell_command(command: str) -> str:
+    """Invoke a leading quoted executable in a Codex PowerShell session.
+
+    Bare executable names, explicit calls and shell expressions retain their
+    existing form. Other providers keep their own shell syntax.
+    """
+    stripped = command.lstrip()
+    return "& " + stripped if stripped.startswith(('"', "'")) else command
+
+
+def _quote_executable(executable: str) -> str:
+    # CLI option parsing removes outer shell quotes from a path with spaces.
+    if any(char.isspace() for char in executable) and Path(executable).is_file():
+        return f'"{executable}"'
+    return executable
+
+
 class CodexProvider(BaseProvider):
     name = "codex"
     events = ("SessionStart", "UserPromptSubmit")
@@ -31,7 +48,7 @@ class CodexProvider(BaseProvider):
         hook_obj: dict[str, Any] = {
             "type": "command",
             "command": command,
-            "commandWindows": command,
+            "commandWindows": powershell_command(command),
             "timeout": timeout,
         }
         if status_message:
@@ -51,6 +68,7 @@ class CodexProvider(BaseProvider):
         provider_arg: bool = False,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
+        python_executable = _quote_executable(python_executable)
         target_events = events or self.events
         hooks_dict: dict[str, list[dict[str, Any]]] = {}
         for event in target_events:
@@ -75,6 +93,7 @@ class CodexProvider(BaseProvider):
         provider_arg: bool = True,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
+        python_executable = _quote_executable(python_executable)
         cmd = f"{python_executable} -m {module} hook-run PreToolUse"
         if provider_arg:
             cmd += " --provider codex"
@@ -103,6 +122,7 @@ class CodexProvider(BaseProvider):
         status_message: str | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
+        python_executable = _quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
         cmd = f'{python_executable}{args_str} "{norm_path}"'
@@ -121,4 +141,4 @@ class CodexProvider(BaseProvider):
         }
 
 
-__all__ = ["CodexProvider", "FORBIDDEN_DEFAULT_EVENT"]
+__all__ = ["CodexProvider", "FORBIDDEN_DEFAULT_EVENT", "powershell_command"]

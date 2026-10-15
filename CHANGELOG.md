@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Codex PowerShell snippets invoke quoted executable paths with `&`, including script and action-guard handlers and paths containing spaces. Consumers share this fix; other providers retain their shell syntax.
+
 ### Added
 - `library/starter_pack_hook.py`: SessionStart hook that injects the starter-pack recipe and entry skills (profile chain via `STARTER_PACK_PROFILE`, fail-open, `--measure` budget check) with 7 tests (`tests/test_starter_pack_hook.py`).
 
