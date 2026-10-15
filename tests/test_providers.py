@@ -166,7 +166,7 @@ def test_codex_provider_emits_valid_structure():
     assert "PreToolUse" not in snippet["hooks"]
     assert set(snippet["hooks"]) == {"SessionStart", "UserPromptSubmit"}
     hook_item = snippet["hooks"]["SessionStart"][0]["hooks"][0]
-    assert hook_item["command"] == hook_item["commandWindows"]
+    assert hook_item["commandWindows"].removeprefix("& ") == hook_item["command"]
     assert hook_item["timeout"] == 10
 
 
