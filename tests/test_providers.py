@@ -342,3 +342,16 @@ def test_doctor_detects_invalid_timeout_in_config(tmp_path):
     assert report["exit_code"] == 2
     finding = report["entries"][0]["findings"][0]
     assert finding["state"] == "invalid-hook-invariants"
+def test_codex_compact_session_start_script_contract():
+    from hook_master.providers.codex import CodexProvider
+
+    snippet = CodexProvider().script_snippet(
+        "hooks/context.py", event="SessionStart", matcher="^compact$", timeout=10,
+    )
+    assert set(snippet["hooks"]) == {"SessionStart"}
+    assert len(snippet["hooks"]["SessionStart"]) == 1
+    entry = snippet["hooks"]["SessionStart"][0]
+    assert entry["matcher"] == "^compact$"
+    hook = entry["hooks"][0]
+    assert hook["timeout"] == 10
+    assert hook["commandWindows"] == hook["command"]
