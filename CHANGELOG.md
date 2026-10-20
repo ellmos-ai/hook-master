@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+- Consent allowlists grant deployment only for the JSON boolean `true`. Strings such as `"false"`, numbers and containers no longer grant consent. Invalid document/record shapes and invalid UTF-8 are read as an empty allowlist, leaving deployment blocked without crashing status queries.
+- Regression coverage verifies strict boolean handling and preserves an existing deployed hook when its allowlist contains `"consented": "false"`.
+
 ### Added
 - `library/starter_pack_hook.py`: SessionStart hook that injects the starter-pack recipe and entry skills (profile chain via `STARTER_PACK_PROFILE`, fail-open, `--measure` budget check) with 7 tests (`tests/test_starter_pack_hook.py`).
 

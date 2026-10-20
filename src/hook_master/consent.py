@@ -56,22 +56,22 @@ class ConsentStore:
     def load(self) -> dict[str, ConsentRecord]:
         """Fail-open: jede Lesestoerung (Datei fehlt, kaputtes JSON, falsches
         Schema) liefert eine LEERE Allowlist zurueck statt einer Exception."""
-        if not self.path.exists():
-            return {}
         try:
             data = json.loads(self.path.read_text(encoding="utf-8"))
-            if data.get("schema") != SCHEMA or not isinstance(data.get("entries"), dict):
+            if not isinstance(data, dict) or data.get("schema") != SCHEMA or not isinstance(data.get("entries"), dict):
+                return {}
+            if any(not isinstance(record, dict) for record in data["entries"].values()):
                 return {}
             return {
                 entry_id: ConsentRecord(
-                    consented=bool(record.get("consented", False)),
+                    consented=record.get("consented") is True,
                     consented_at=record.get("consented_at"),
                     consented_by=record.get("consented_by"),
                     note=record.get("note"),
                 )
                 for entry_id, record in data["entries"].items()
             }
-        except (OSError, json.JSONDecodeError):
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             return {}
 
     def save(self, records: dict[str, ConsentRecord]) -> None:
