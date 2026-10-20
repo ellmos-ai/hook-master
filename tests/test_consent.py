@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+
+import pytest
+
 from hook_master.consent import ConsentStore
 
 
@@ -57,3 +61,27 @@ def test_persists_across_new_store_instances(tmp_path):
     path = tmp_path / "allowlist.json"
     ConsentStore(path).grant("persisted-hook")
     assert ConsentStore(path).is_consented("persisted-hook") is True
+
+
+@pytest.mark.parametrize("value", [True, False, "false", "true", 1, 0, None, [], [True], {}, {"approved": True}])
+def test_only_json_true_grants_consent(tmp_path, value):
+    path = tmp_path / "allowlist.json"
+    path.write_text(
+        json.dumps({"schema": "ellmos.hook-consent.v1", "entries": {"hook": {"consented": value}}}), encoding="utf-8"
+    )
+    assert ConsentStore(path).is_consented("hook") is (value is True)
+
+
+@pytest.mark.parametrize(
+    "data", [None, [], True, 1, "invalid", {"schema": "ellmos.hook-consent.v1", "entries": {"hook": None}}]
+)
+def test_invalid_document_shape_reads_as_empty(tmp_path, data):
+    path = tmp_path / "allowlist.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    assert ConsentStore(path).load() == {}
+
+
+def test_invalid_utf8_reads_as_empty(tmp_path):
+    path = tmp_path / "allowlist.json"
+    path.write_bytes(b"\xff")
+    assert ConsentStore(path).load() == {}

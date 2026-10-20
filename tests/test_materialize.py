@@ -1,7 +1,26 @@
 from __future__ import annotations
 
+import json
+
 from hook_master import materialize
 from hook_master.consent import ConsentStore
+
+
+def test_string_false_consent_cannot_overwrite_target(registry, hook_entry, tmp_path):
+    from hook_master.model import expand_uri
+
+    registry.register(hook_entry)
+    target = expand_uri(hook_entry["targets"][0]["deploy_path"])
+    target.parent.mkdir()
+    target.write_bytes(b"preserve existing deployed hook\n")
+    allowlist = tmp_path / "allowlist.json"
+    allowlist.write_text(
+        json.dumps({"schema": "ellmos.hook-consent.v1", "entries": {hook_entry["id"]: {"consented": "false"}}}),
+        encoding="utf-8",
+    )
+    result = materialize.deploy(registry, consent=ConsentStore(allowlist))
+    assert result[0].action == "pending-consent"
+    assert target.read_bytes() == b"preserve existing deployed hook\n"
 
 
 def test_deploy_writes_missing_target(registry, hook_entry, consented_store):
