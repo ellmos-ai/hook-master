@@ -283,6 +283,13 @@ hook-master status
 hook-master doctor --timing
 ```
 
+For Codex sessions using PowerShell on Windows, generated `commandWindows`
+entries invoke quoted executable paths with the call operator `&`. Bare
+commands such as `python -m ...` keep their existing form. Executable paths
+containing spaces are quoted automatically. These shell rules apply only to
+Codex; Claude and Kimi retain their provider-specific syntax. Review changed
+hook definitions again through Codex `/hooks` before using them.
+
 ---
 
 <a id="sec-08"></a><a id="8-entry-model--pointer-specifications"></a><a id="entry-model"></a>
