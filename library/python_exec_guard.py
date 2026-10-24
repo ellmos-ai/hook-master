@@ -20,6 +20,11 @@ _CMD_SHELL = {"cmd", "cmd.exe"}
 _START = {"start-process", "saps", "start"}
 _INVOKE = {"invoke-item", "ii"}
 _CMD_COMMAND = re.compile(r"^cmd(?:\.exe)?\s+/(?:c|k)\s+(.+)$", re.IGNORECASE)
+_START_VALUE_OPTIONS = {
+    "-argumentlist", "-credential", "-environment", "-redirectstandarderror",
+    "-redirectstandardinput", "-redirectstandardoutput", "-verb",
+    "-windowstyle", "-workingdirectory",
+}
 
 
 def _unquote(word: str) -> str:
@@ -52,6 +57,12 @@ def _segments(command: str) -> Iterable[str]:
                 quote = ""
         elif char in "\"'":
             quote = char
+        elif char == "#" and (not current or current[-1].isspace()):
+            # A PowerShell comment consumes the rest of the line, including
+            # semicolons that would otherwise look like command separators.
+            while index < len(command) and command[index] not in "\r\n":
+                index += 1
+            continue
         elif char in ";\r\n|{}()" or command[index:index + 2] == "&&":
             segment = "".join(current).strip()
             if segment:
@@ -69,12 +80,22 @@ def _segments(command: str) -> Iterable[str]:
         yield segment
 
 
-def _file_argument(words: list[str], switches: tuple[str, ...]) -> str | None:
+def _file_argument(
+    words: list[str], switches: tuple[str, ...], value_options: frozenset[str] = frozenset(),
+) -> str | None:
     for index, word in enumerate(words[1:], 1):
         if word.lower() in switches and index + 1 < len(words):
             return words[index + 1]
-    if len(words) > 1 and not words[1].startswith(("-", "/")):
-        return words[1]
+    index = 1
+    while index < len(words):
+        word = words[index]
+        if word.startswith("-"):
+            index += 2 if word.lower() in value_options else 1
+            continue
+        if word.startswith("/"):
+            index += 1
+            continue
+        return word
     return None
 
 
@@ -84,10 +105,12 @@ def _bad_words(words: list[str]) -> bool:
     head = _unquote(words[0]).lower()
     if head == "&":
         return len(words) > 1 and _is_python_file(words[1])
+    if head.startswith("&"):
+        return False  # Without whitespace this is not PowerShell's call operator.
     if _is_python_file(words[0]):
         return True
     if head in _START:
-        path = _file_argument(words, ("-filepath",))
+        path = _file_argument(words, ("-filepath",), frozenset(_START_VALUE_OPTIONS))
         if head == "start" and (path is None or not _unquote(path)):
             path = next((w for w in words[1:] if not w.startswith("/") and _unquote(w)), None)
         return path is not None and _is_python_file(path)
