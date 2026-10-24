@@ -13,7 +13,9 @@ import sys
 from collections.abc import Iterable
 from typing import Any
 
-_WORDS = re.compile(r'''"(?:`.|[^"])*"|'(?:''|[^'])*'|\S+''')
+# Quoted sections may be attached to a token, as in &"C:\my dir\scan.py"
+# or -FilePath:"C:\my dir\scan.py". Keep each such form in one word.
+_WORDS = re.compile(r'''(?:[^\s"']+|"(?:`.|[^"])*"|'(?:''|[^'])*')+''')
 _PY_FILE = re.compile(r"\.py$", re.IGNORECASE)
 _PS_SHELL = {"powershell", "powershell.exe", "pwsh", "pwsh.exe"}
 _CMD_SHELL = {"cmd", "cmd.exe"}
@@ -44,6 +46,19 @@ def _segments(command: str) -> Iterable[str]:
     index = 0
     while index < len(command):
         char = command[index]
+        if not quote and command[index:index + 2] in ("@'", '@"'):
+            # PowerShell here-strings are data through a closing marker at the
+            # beginning of a later line. Their lines must not become commands.
+            line_end = command.find("\n", index + 2)
+            if line_end >= 0 and not command[index + 2:line_end].strip():
+                closing = command[index + 1] + "@"
+                match = re.search(
+                    r"(?m)^[ \t]*" + re.escape(closing) + r"(?=$|[ \t]*[;\r\n])",
+                    command[line_end + 1:],
+                )
+                current.append(" '' ")
+                index = line_end + 1 + match.end() if match else len(command)
+                continue
         if char == "`" and index + 1 < len(command):
             current.extend((char, command[index + 1]))
             index += 2
@@ -84,8 +99,12 @@ def _file_argument(
     words: list[str], switches: tuple[str, ...], value_options: frozenset[str] = frozenset(),
 ) -> str | None:
     for index, word in enumerate(words[1:], 1):
-        if word.lower() in switches and index + 1 < len(words):
-            return words[index + 1]
+        lowered = word.lower()
+        for switch in switches:
+            if lowered == switch and index + 1 < len(words):
+                return words[index + 1]
+            if lowered.startswith(switch + ":"):
+                return word[len(switch) + 1:]
     index = 1
     while index < len(words):
         word = words[index]
@@ -106,7 +125,9 @@ def _bad_words(words: list[str]) -> bool:
     if head == "&":
         return len(words) > 1 and _is_python_file(words[1])
     if head.startswith("&"):
-        return False  # Without whitespace this is not PowerShell's call operator.
+        # PowerShell's AST accepts &C:\work\scan.py and &"C:\work dir\scan.py"
+        # as InvocationOperator=Ampersand with a literal command target.
+        return _is_python_file(words[0][1:])
     if _is_python_file(words[0]):
         return True
     if head in _START:
