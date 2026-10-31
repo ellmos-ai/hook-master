@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
+from .invariants import format_script_args
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -31,11 +32,12 @@ class AgyProvider(BaseProvider):
         python_args: list[str] | None = None,
         matcher: str | None = None,
         timeout: int | float | None = None,
+        script_args: list[str] | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
-        cmd = f'{python_executable}{args_str} "{norm_path}"'
+        cmd = f'{python_executable}{args_str} "{norm_path}"' + format_script_args(script_args)
         return {"hooks": {event: [self.format_hook(cmd, matcher=matcher)]}}
 
 

@@ -314,6 +314,31 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 | `doctor [--id <id>] [--timing]` | Umfassende Systemdiagnose (Hashes, Syntax, Drift, Konfigurationen). Exit `0`/`1`/`2` |
 | `consent <id> [--by <name>] [--note <text>]` | Bereitstellungs-Freigabe für einen Eintrag erteilen |
 | `consent-status [<id>]` | Freigabestatus für einen oder alle Einträge anzeigen |
+| `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <Pfad>] [--python <exe>]` | Konfigurationsbaustein für ein kanonisches Skript ausgeben (nie installieren); `--id lock_guard` braucht `--script` (siehe unten) |
+
+### Lock-Guard für Claude, Codex und Kimi (`lock_guard`)
+
+`lock_guard` ist der einzige Eintrag von `install-snippet`, dessen Skript nicht in `library/` liegt: es ist
+`plugin/lock_guard.py` von lock-master, daher ist `--script <Pfad zu lock-master>/plugin/lock_guard.py` Pflicht. Der Baustein
+trägt es als `PreToolUse`-Hook ein und übergibt `--actor`, damit der Guard im Vertrag des Hosts antwortet:
+
+| Provider | Werkzeuge, an die der Hook gebunden ist | Ablehnung |
+|---|---|---|
+| `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit`, `Bash` (`git push`) | JSON `permissionDecision: deny` |
+| `codex` | `apply_patch` (Pfade aus den Patch-Kopfzeilen), `Bash` (`git push`) | Exit-Code 2, Begründung auf stderr |
+| `kimi` | `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | Exit-Code 2, Begründung auf stderr |
+| `agy` | nicht möglich: agy kennt nur `PreInvocation` (vor dem Modellaufruf, ohne Werkzeugziel); `install-snippet` lehnt mit dieser Begründung ab | entfällt |
+
+```
+hook-master install-snippet --id lock_guard --provider codex --script C:/tools/lock-master/plugin/lock_guard.py
+```
+
+Warum `PreToolUse` nicht in den Standard-Bausteinen steht: `hook_snippet()` der Claude- und Codex-Provider stellt sicher, dass es
+`PreToolUse` nie ausgibt (`forbidden_events`; workflowhooker hält fest, das Ereignis sei harten Guards vorbehalten). Es läuft vor
+jedem passenden Werkzeugaufruf und kann ihn blockieren, daher entsteht es nur durch einen ausdrücklichen Aufruf
+(`pretooluse_blocker_snippet()`, `script_snippet()`, `install-snippet --id guards|lock_guard`), nie als Nebeneffekt der
+Registrierung eines Consumers. Shell-Befehle werden nicht auf Dateiziele geparst: Schreibzugriffe über `Bash`/`Shell` sind nicht
+abgedeckt, und Kimis Shell-Werkzeug ist gar nicht gebunden (sein Werkzeugname ist im Provider-Modell von hook-master nicht belegt).
 
 ---
 

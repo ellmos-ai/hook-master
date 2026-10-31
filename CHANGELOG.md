@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+- `install-snippet --id lock_guard` (also `format_raw_script_snippet("lock_guard", ...)`): hook fragment for lock-master's
+  `plugin/lock_guard.py` as a `PreToolUse` guard for Claude Code (`Edit|Write|MultiEdit|NotebookEdit|Bash`), Codex
+  (`^(apply_patch|Bash)$`) and Kimi Code (`WriteFile|StrReplaceFile|DeleteFile|MoveFile`), with `--actor` selecting the host's
+  denial contract (Claude JSON, Codex/Kimi exit code 2 + stderr). `--script` is mandatory because the script lives in
+  lock-master. agy is refused with the reason (only `PreInvocation`, no tool target).
+- `script_snippet(..., script_args=[...])` on all four providers appends validated plain-token arguments to the command
+  (`format_script_args` rejects quotes, spaces and shell metacharacters).
+
 ### Fixed
 - Codex PowerShell snippets invoke quoted executable paths with `&`, including script and action-guard handlers and paths containing spaces. Consumers share this fix; other providers retain their shell syntax.
 - Consent allowlists grant deployment only for the JSON boolean `true`. Strings such as `"false"`, numbers and containers no longer grant consent. Invalid document/record shapes and invalid UTF-8 are read as an empty allowlist, leaving deployment blocked without crashing status queries.

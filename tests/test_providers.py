@@ -273,6 +273,78 @@ def test_format_raw_script_notaus_wake_check():
 
 
 # ---------------------------------------------------------------------------
+# lock_guard (lock-master): ein Guard fuer Claude, Codex und Kimi
+# ---------------------------------------------------------------------------
+
+LOCK_GUARD = "C:/tools/lock-master/plugin/lock_guard.py"
+
+
+def _lock_guard(provider):
+    return format_raw_script_snippet("lock_guard", provider, script_path=LOCK_GUARD, python_executable=sys.executable)
+
+
+def test_lock_guard_claude_snippet_covers_file_tools_and_bash_push():
+    entry = _lock_guard("claude")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "Edit|Write|MultiEdit|NotebookEdit|Bash"
+    command = entry["hooks"][0]["command"]
+    assert command.endswith(f'"{LOCK_GUARD}" pretooluse --actor claude-code') and "-X utf8" in command
+
+
+def test_lock_guard_codex_snippet_covers_apply_patch_and_bash():
+    entry = _lock_guard("codex")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "^(apply_patch|Bash)$"
+    hook = entry["hooks"][0]
+    assert hook["command"].endswith(f'"{LOCK_GUARD}" pretooluse --actor codex')
+    assert hook["timeout"] == 10 and hook["statusMessage"] == "lock-master: lock check"
+
+
+def test_lock_guard_kimi_snippet_covers_the_file_tools():
+    hook = _lock_guard("kimi")["hooks"][0]
+    assert hook["event"] == "PreToolUse" and hook["matcher"] == "WriteFile|StrReplaceFile|DeleteFile|MoveFile"
+    assert hook["command"].endswith(f'"{LOCK_GUARD}" pretooluse --actor kimi')
+
+
+def test_lock_guard_agy_is_refused_with_the_reason():
+    with pytest.raises(ValueError, match="PreInvocation"):
+        _lock_guard("agy")
+
+
+def test_lock_guard_needs_the_script_path_because_it_lives_in_lock_master():
+    with pytest.raises(ValueError, match="script_path"):
+        format_raw_script_snippet("lock-guard", "claude", python_executable=sys.executable)
+
+
+def test_lock_guard_unknown_provider_is_refused():
+    with pytest.raises(ValueError):
+        format_raw_script_snippet("lock_guard", "git", script_path=LOCK_GUARD, python_executable=sys.executable)
+
+
+def test_script_args_reject_shell_metacharacters():
+    from hook_master.providers.invariants import format_script_args
+
+    assert format_script_args(None) == "" and format_script_args(["pretooluse", "--actor", "codex"]) == (
+        " pretooluse --actor codex")
+    for bad in ("a b", "a;b", "a&b", "a|b", "$(x)", "`x`", "'x'", '"x"', ""):
+        with pytest.raises(ValueError):
+            format_script_args([bad])
+
+
+def test_existing_scripts_get_no_extra_arguments():
+    command = format_raw_script_snippet("guards", "claude", python_executable=sys.executable)[
+        "hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+    assert command.endswith('guards.py"')
+
+
+def test_lock_guard_install_snippet_cli(capsys):
+    from hook_master.cli import main
+
+    assert main(["install-snippet", "--id", "lock_guard", "--provider", "codex", "--script", LOCK_GUARD,
+                 "--python", sys.executable]) == 0
+    printed = json.loads(capsys.readouterr().out)
+    assert printed["hooks"]["PreToolUse"][0]["matcher"] == "^(apply_patch|Bash)$"
+
+
+# ---------------------------------------------------------------------------
 # Doctor Invarianten-Scanning
 # ---------------------------------------------------------------------------
 

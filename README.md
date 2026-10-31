@@ -321,6 +321,31 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 | `doctor [--id <id>] [--timing]` | Comprehensive diagnostics beyond verify/diff (checks hashes, syntax, drift, configs). Exit `0`/`1`/`2` |
 | `consent <id> [--by <name>] [--note <text>]` | Grant deploy consent for one entry |
 | `consent-status [<id>]` | Display consent state for one or all entries |
+| `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <path>] [--python <exe>]` | Print (never install) the hook configuration fragment for a canonical script; `--id lock_guard` needs `--script` (see below) |
+
+### Lock guard for Claude, Codex and Kimi (`lock_guard`)
+
+`lock_guard` is the one entry of `install-snippet` whose script is not in `library/`: it is lock-master's
+`plugin/lock_guard.py`, so `--script <path to lock-master>/plugin/lock_guard.py` is mandatory. The fragment registers it
+as a `PreToolUse` hook and passes `--actor` so the guard answers in the contract of the host:
+
+| Provider | Tools the hook is bound to | Denial |
+|---|---|---|
+| `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit`, `Bash` (`git push`) | JSON `permissionDecision: deny` |
+| `codex` | `apply_patch` (paths from the patch headers), `Bash` (`git push`) | exit code 2, reason on stderr |
+| `kimi` | `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | exit code 2, reason on stderr |
+| `agy` | not possible: agy only has `PreInvocation` (before the model call, no tool target), `install-snippet` refuses with that reason | n/a |
+
+```
+hook-master install-snippet --id lock_guard --provider codex --script C:/tools/lock-master/plugin/lock_guard.py
+```
+
+Why `PreToolUse` is not in the default snippets: `hook_snippet()` of the Claude and Codex providers asserts it never emits
+`PreToolUse` (`forbidden_events`; workflowhooker states the event is reserved for hard guards). It runs before every matching
+tool call and can block it, so it is only produced by an
+explicit call (`pretooluse_blocker_snippet()`, `script_snippet()`, `install-snippet --id guards|lock_guard`), never as a
+side effect of registering a consumer. Shell commands are not parsed for file targets: a `Bash`/`Shell` write is not
+covered, and Kimi's shell tool is not bound at all (its tool name is not documented in hook-master's provider model).
 
 ---
 

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
-from .invariants import validate_timeout
+from .invariants import format_script_args, validate_timeout
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -120,12 +120,13 @@ class CodexProvider(BaseProvider):
         matcher: str | None = None,
         timeout: int = 10,
         status_message: str | None = None,
+        script_args: list[str] | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
         python_executable = _quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
-        cmd = f'{python_executable}{args_str} "{norm_path}"'
+        cmd = f'{python_executable}{args_str} "{norm_path}"' + format_script_args(script_args)
         return {
             "hooks": {
                 event: [
