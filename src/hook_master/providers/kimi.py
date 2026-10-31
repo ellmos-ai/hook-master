@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
-from .invariants import validate_timeout
+from .invariants import quote_executable, validate_timeout
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -42,6 +42,7 @@ class KimiProvider(BaseProvider):
         timeout: int = 15,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
+        python_executable = quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
         cmd = f'{python_executable}{args_str} "{norm_path}"'

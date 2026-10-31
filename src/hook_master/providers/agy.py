@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
+from .invariants import quote_executable
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -33,6 +34,7 @@ class AgyProvider(BaseProvider):
         timeout: int | float | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable, timeout)
+        python_executable = quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
         cmd = f'{python_executable}{args_str} "{norm_path}"'
