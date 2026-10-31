@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
+from .invariants import quote_executable
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -37,6 +38,7 @@ class ClaudeProvider(BaseProvider):
         provider_arg: bool = False,
     ) -> dict[str, Any]:
         self.validate_command(python_executable)
+        python_executable = quote_executable(python_executable)
         target_events = events or self.events
         hooks_dict: dict[str, list[dict[str, Any]]] = {}
         for event in target_events:
@@ -58,6 +60,7 @@ class ClaudeProvider(BaseProvider):
         provider_arg: bool = True,
     ) -> dict[str, Any]:
         self.validate_command(python_executable)
+        python_executable = quote_executable(python_executable)
         cmd = f"{python_executable} -m {module} hook-run PreToolUse"
         if provider_arg:
             cmd += " --provider claude"
@@ -76,6 +79,7 @@ class ClaudeProvider(BaseProvider):
         matcher: str | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable)
+        python_executable = quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
         cmd = f'{python_executable}{args_str} "{norm_path}"'

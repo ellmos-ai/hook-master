@@ -355,3 +355,48 @@ def test_codex_compact_session_start_script_contract():
     hook = entry["hooks"][0]
     assert hook["timeout"] == 10
     assert hook["commandWindows"] == hook["command"]
+
+
+# ---------------------------------------------------------------------------
+# Interpreter path with whitespace: quoted by every provider
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def spaced_python(tmp_path):
+    folder = tmp_path / "Program Files" / "Python"
+    folder.mkdir(parents=True)
+    target = folder / "python.exe"
+    shutil.copyfile(sys.executable, target)
+    return str(target)
+
+
+def _commands(snippet):
+    hooks = snippet["hooks"]
+    if isinstance(hooks, list):  # kimi
+        return [h["command"] for h in hooks]
+    return [h["command"] for entries in hooks.values() for entry in entries
+            for h in (entry["hooks"] if "hooks" in entry else [entry])]
+
+
+@pytest.mark.parametrize("name", ["claude", "codex", "kimi", "agy"])
+def test_script_snippet_quotes_an_interpreter_path_with_spaces(name, spaced_python):
+    provider = PROVIDER_REGISTRY[name]
+    snippet = provider.script_snippet("library/x.py", event="PreToolUse", python_executable=spaced_python)
+    (command,) = _commands(snippet)
+    assert command.startswith(f'"{spaced_python}" ')  # one quoted token, not "C:\...\Program" + "Files\..."
+
+
+def test_claude_and_codex_module_snippets_quote_too(spaced_python):
+    for snippet in (ClaudeProvider().hook_snippet(python_executable=spaced_python),
+                    ClaudeProvider().pretooluse_blocker_snippet(python_executable=spaced_python),
+                    CodexProvider().hook_snippet(python_executable=spaced_python)):
+        assert all(c.startswith(f'"{spaced_python}" ') for c in _commands(snippet))
+
+
+def test_plain_interpreter_names_and_paths_stay_unquoted():
+    from hook_master.providers.invariants import quote_executable
+
+    assert quote_executable("python") == "python"
+    assert quote_executable(sys.executable) in (sys.executable, f'"{sys.executable}"')
+    assert quote_executable("C:/no such dir/python.exe") == "C:/no such dir/python.exe"  # not a file: left alone

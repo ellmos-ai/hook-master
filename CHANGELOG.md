@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- `ClaudeProvider`, `KimiProvider` and `AgyProvider` quote an interpreter path that contains whitespace (as `CodexProvider` already did); `--python "C:/Program Files/Python312/python.exe"` no longer yields a command that splits at the space. The helper is now `invariants.quote_executable`. Bare names and paths without whitespace are unchanged. Test badge and `llms.txt` count corrected to the measured 181 (was 134).
 - Codex PowerShell snippets invoke quoted executable paths with `&`, including script and action-guard handlers and paths containing spaces. Consumers share this fix; other providers retain their shell syntax.
 - Consent allowlists grant deployment only for the JSON boolean `true`. Strings such as `"false"`, numbers and containers no longer grant consent. Invalid document/record shapes and invalid UTF-8 are read as an empty allowlist, leaving deployment blocked without crashing status queries.
 - Regression coverage verifies strict boolean handling and preserves an existing deployed hook when its allowlist contains `"consented": "false"`.
