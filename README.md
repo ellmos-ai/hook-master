@@ -359,7 +359,7 @@ Why `PreToolUse` is not in the default snippets: `hook_snippet()` of the Claude 
 `PreToolUse` (`forbidden_events`; workflowhooker states the event is reserved for hard guards). It runs before every matching
 tool call and can block it, so it is only produced by an explicit call (`pretooluse_blocker_snippet()`, `script_snippet()`,
 `install-snippet --id guards|lock_edit_guard`), never as a side effect of registering a consumer. Shell commands are not parsed for
-file targets: a `Bash`/`Shell` write is not covered.
+file targets: a `Bash`/`Shell` write is not covered. The Kimi names were read from the tool schema of the installed Kimi Code CLI 0.14.2 (`Write` and `Edit` with `path`, shell tool `Bash` with `command`); the older `WriteFile` family stays bound. The fragment does not bind Kimi's `Bash` (no `lock_push_guard` for Kimi yet; adding `Bash` to the matcher would let the guard cover `git push`, proposal only).
 
 ---
 

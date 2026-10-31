@@ -352,7 +352,7 @@ Warum `PreToolUse` nicht in den Standard-Bausteinen steht: `hook_snippet()` der 
 `PreToolUse` nie ausgibt (`forbidden_events`; workflowhooker hält fest, das Ereignis sei harten Guards vorbehalten). Es läuft vor
 jedem passenden Werkzeugaufruf und kann ihn blockieren, daher entsteht es nur durch einen ausdrücklichen Aufruf
 (`pretooluse_blocker_snippet()`, `script_snippet()`, `install-snippet --id guards|lock_edit_guard`), nie als Nebeneffekt der
-Registrierung eines Consumers. Shell-Befehle werden nicht auf Dateiziele geparst: Schreibzugriffe über `Bash`/`Shell` sind nicht abgedeckt.
+Registrierung eines Consumers. Shell-Befehle werden nicht auf Dateiziele geparst: Schreibzugriffe über `Bash`/`Shell` sind nicht abgedeckt. Die Kimi-Namen stammen aus dem Werkzeugschema der installierten Kimi Code CLI 0.14.2 (`Write` und `Edit` mit `path`, Shell-Werkzeug `Bash` mit `command`); die älteren `WriteFile`-Namen bleiben gebunden. Der Baustein bindet Kimis `Bash` nicht (für Kimi gibt es noch keinen `lock_push_guard`; `Bash` im Matcher würde `git push` abdecken, nur Vorschlag).
 
 ---
 
