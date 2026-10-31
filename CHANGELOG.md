@@ -4,8 +4,9 @@
 
 ### Added
 - `library/lock_edit_guard.py` and `install-snippet --id lock_edit_guard` (aliases `lock_guard`, `lock-guard`): edit-side
-  counterpart of `lock_push_guard`, a connector that runs lock-master's `plugin/lock_guard.py` (no second implementation; lookup via
-  `ELLMOS_LOCK_MASTER`, default clone locations, plugin cache; not found -> stderr note, exit 0). `PreToolUse` fragments for Claude
+  counterpart of `lock_push_guard`, a connector that runs lock-master's `plugin/lock_guard.py` (no second implementation). It executes
+  what it finds, so it looks only in user-owned places: `ELLMOS_LOCK_MASTER`, the plugin cache and `~/_Local_DEV/repos/lock-master`
+  (under home; on POSIX owner and permission checked); drive roots are never searched. Not found -> stderr note, exit 0. `PreToolUse` fragments for Claude
   Code (`Edit|Write|MultiEdit|NotebookEdit`), Codex (`^apply_patch$`) and Kimi Code (`WriteFile|StrReplaceFile|DeleteFile|MoveFile`),
   `--actor` selecting the host's denial contract (Claude JSON, Codex/Kimi exit code 2 + stderr). agy is refused with the reason
   (only `PreInvocation`, no tool target).

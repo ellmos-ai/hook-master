@@ -321,9 +321,15 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 `library/lock_edit_guard.py` ist das Edit-Gegenstück zu `lock_push_guard.py` (Push-Schutz, Locks im Repo-Root). Es ist nur der
 Anschluss: Es sucht lock-masters `plugin/lock_guard.py` und führt es mit denselben Argumenten aus, damit alle Lock-Semantik
 (Datei-Locks, Fencing, Team-Brett-Claims, `apply_patch`- und Kimi-Dateiziele, Ablehnungsvertrag je Host) in lock-master liegt
-und nirgends sonst. Suchreihenfolge: `ELLMOS_LOCK_MASTER` (Repo, Plugin-Ordner oder die Datei), `<Laufwerk>/_Local_DEV/repos/lock-master`
-und `~/_Local_DEV/repos/lock-master`, dann der Claude-Code-Plugin-Cache. Wird nichts gefunden, meldet es das auf stderr und endet mit
-Exit 0, wie der Starter des Plugins (die Prüfung ist dann inaktiv, und das laut).
+und nirgends sonst. Weil es das Gefundene **ausführt**, sucht es nur an Orten, die dem Benutzer gehören: `ELLMOS_LOCK_MASTER` (Repo, Plugin-Ordner oder
+die Datei; ausdrückliche Entscheidung, wird nicht weiter geprüft), dann der Claude-Code-Plugin-Cache
+(`~/.claude/plugins/cache/**/ellmos-lock-master/*/`, neueste Version) und `~/_Local_DEV/repos/lock-master`. Alles außer der Variablen
+muss unter dem Home-Verzeichnis liegen; unter POSIX müssen Datei und alle Ordner bis zum Home außerdem dem Benutzer gehören und für
+Gruppe und andere nicht beschreibbar sein. Laufwerkswurzeln (`C:/_Local_DEV/...`) werden bewusst **nicht** durchsucht, weil dort unter
+Windows auch andere Konten Ordner anlegen können; liegt der Klon an einer Laufwerkswurzel, `ELLMOS_LOCK_MASTER` setzen (oder den
+Plugin-Cache nutzen). Unter Windows ist die Beschränkung auf das Benutzerprofil die Prüfung: Mit den Windows-Voreinstellungen ist es für
+andere Standardkonten nicht beschreibbar, und ein Owner-SID-Vergleich bräuchte Win32-Aufrufe ohne zusätzlichen Schutz. Wird nichts
+gefunden, meldet es das auf stderr und endet mit Exit 0, wie der Starter des Plugins (die Prüfung ist dann inaktiv, und das laut).
 
 `install-snippet --id lock_edit_guard --provider <p>` gibt den Baustein aus (er ändert nie eine Host-Konfiguration). `git push` bleibt
 bei `lock_push_guard`, daher gibt es keinen `Bash`-Matcher:

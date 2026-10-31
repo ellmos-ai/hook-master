@@ -328,9 +328,15 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 `library/lock_edit_guard.py` is the edit-side counterpart of `lock_push_guard.py` (push protection, repository-root locks). It is
 only a connector: it finds lock-master's `plugin/lock_guard.py` and runs it with the same arguments, so all lock semantics (file
 locks, fencing, team-board claims, `apply_patch` and Kimi file targets, the denial contract per host) live in lock-master and
-nowhere else. Lookup order: `ELLMOS_LOCK_MASTER` (repository, plugin directory or the file), `<drive>/_Local_DEV/repos/lock-master`
-and `~/_Local_DEV/repos/lock-master`, then the Claude Code plugin cache. If none is found it says so on stderr and exits 0,
-like the plugin's own launcher (the check is then inactive, and loudly so).
+nowhere else. Because it **executes** what it finds, it only looks in places that belong to the user: `ELLMOS_LOCK_MASTER` (repository, plugin
+directory or the file; an explicit decision, not checked further), then the Claude Code plugin cache
+(`~/.claude/plugins/cache/**/ellmos-lock-master/*/`, newest version) and `~/_Local_DEV/repos/lock-master`. Everything but the
+variable must lie under the home directory; on POSIX the file and every folder up to home must also be owned by the user and not
+writable by group or others. Drive roots (`C:/_Local_DEV/...`) are deliberately **not** searched, because other accounts can create
+folders there on Windows; on a host whose clone lives at a drive root, set `ELLMOS_LOCK_MASTER` (or rely on the plugin cache).
+On Windows the restriction to the user profile is the check: with the Windows defaults it is not writable for other standard
+accounts, and an owner-SID comparison would need Win32 calls without extra protection. If nothing is found it says so on stderr and
+exits 0, like the plugin's own launcher (the check is then inactive, and loudly so).
 
 `install-snippet --id lock_edit_guard --provider <p>` prints the fragment (it never edits a host configuration). `git push` stays
 with `lock_push_guard`, so there is no `Bash` matcher:
