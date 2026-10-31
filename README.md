@@ -321,31 +321,39 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 | `doctor [--id <id>] [--timing]` | Comprehensive diagnostics beyond verify/diff (checks hashes, syntax, drift, configs). Exit `0`/`1`/`2` |
 | `consent <id> [--by <name>] [--note <text>]` | Grant deploy consent for one entry |
 | `consent-status [<id>]` | Display consent state for one or all entries |
-| `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <path>] [--python <exe>]` | Print (never install) the hook configuration fragment for a canonical script; `--id lock_guard` needs `--script` (see below) |
+| `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <path>] [--python <exe>]` | Print (never install) the hook configuration fragment for a canonical script; `--id lock_edit_guard` is the lock-master edit guard (see below) |
 
-### Lock guard for Claude, Codex and Kimi (`lock_guard`)
+### Lock edit guard for Claude, Codex and Kimi (`lock_edit_guard`)
 
-`lock_guard` is the one entry of `install-snippet` whose script is not in `library/`: it is lock-master's
-`plugin/lock_guard.py`, so `--script <path to lock-master>/plugin/lock_guard.py` is mandatory. The fragment registers it
-as a `PreToolUse` hook and passes `--actor` so the guard answers in the contract of the host:
+`library/lock_edit_guard.py` is the edit-side counterpart of `lock_push_guard.py` (push protection, repository-root locks). It is
+only a connector: it finds lock-master's `plugin/lock_guard.py` and runs it with the same arguments, so all lock semantics (file
+locks, fencing, team-board claims, `apply_patch` and Kimi file targets, the denial contract per host) live in lock-master and
+nowhere else. Lookup order: `ELLMOS_LOCK_MASTER` (repository, plugin directory or the file), `<drive>/_Local_DEV/repos/lock-master`
+and `~/_Local_DEV/repos/lock-master`, then the Claude Code plugin cache. If none is found it says so on stderr and exits 0,
+like the plugin's own launcher (the check is then inactive, and loudly so).
+
+`install-snippet --id lock_edit_guard --provider <p>` prints the fragment (it never edits a host configuration). `git push` stays
+with `lock_push_guard`, so there is no `Bash` matcher:
 
 | Provider | Tools the hook is bound to | Denial |
 |---|---|---|
-| `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit`, `Bash` (`git push`) | JSON `permissionDecision: deny` |
-| `codex` | `apply_patch` (paths from the patch headers), `Bash` (`git push`) | exit code 2, reason on stderr |
+| `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | JSON `permissionDecision: deny` |
+| `codex` | `apply_patch` (paths from the patch headers) | exit code 2, reason on stderr |
 | `kimi` | `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | exit code 2, reason on stderr |
-| `agy` | not possible: agy only has `PreInvocation` (before the model call, no tool target), `install-snippet` refuses with that reason | n/a |
+| `agy` | not possible: agy only has `PreInvocation` (before the model call, no tool target); `install-snippet` refuses with that reason | n/a |
 
 ```
-hook-master install-snippet --id lock_guard --provider codex --script C:/tools/lock-master/plugin/lock_guard.py
+hook-master install-snippet --id lock_edit_guard --provider codex
 ```
+
+Aliases `lock_guard` and `lock-guard` resolve to the same entry. The commands use `python -X utf8 "<library path>" pretooluse
+--actor <host>`; pass `--script` to point at a deployed copy (for example `~/.codex/hooks/lock_edit_guard.py`).
 
 Why `PreToolUse` is not in the default snippets: `hook_snippet()` of the Claude and Codex providers asserts it never emits
 `PreToolUse` (`forbidden_events`; workflowhooker states the event is reserved for hard guards). It runs before every matching
-tool call and can block it, so it is only produced by an
-explicit call (`pretooluse_blocker_snippet()`, `script_snippet()`, `install-snippet --id guards|lock_guard`), never as a
-side effect of registering a consumer. Shell commands are not parsed for file targets: a `Bash`/`Shell` write is not
-covered, and Kimi's shell tool is not bound at all (its tool name is not documented in hook-master's provider model).
+tool call and can block it, so it is only produced by an explicit call (`pretooluse_blocker_snippet()`, `script_snippet()`,
+`install-snippet --id guards|lock_edit_guard`), never as a side effect of registering a consumer. Shell commands are not parsed for
+file targets: a `Bash`/`Shell` write is not covered.
 
 ---
 

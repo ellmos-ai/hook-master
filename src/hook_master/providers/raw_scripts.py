@@ -25,29 +25,29 @@ CANONICAL_SCRIPTS: dict[str, dict[str, Any]] = {
         },
         "status_message": "guards: pre-tool safety check",
     },
-    # Lebt in lock-master (plugin/lock_guard.py), nicht in library/: --script ist Pflicht. Der Guard liest das
-    # Tool-Payload selbst (Edit/Write/MultiEdit/NotebookEdit, Codex apply_patch, Kimi WriteFile/StrReplaceFile/
-    # DeleteFile/MoveFile, dazu `git push` ueber Bash bei Claude und Codex) und lehnt ab, wenn ein fremder Lock
-    # oder ein fremder Team-Brett-Claim das Ziel abdeckt. Ablehnung: Claude JSON, Codex/Kimi Exit 2 + stderr
-    # (--actor waehlt den Vertrag). agy hat kein Tool-Ereignis: siehe "unsupported".
-    "lock_guard": {
-        "filename": "lock_guard.py",
-        "external": "lock-master: plugin/lock_guard.py",
+    # Edit-Schutz, Gegenstueck zu lock_push_guard: library/lock_edit_guard.py ist nur der Anschluss und fuehrt
+    # lock-masters plugin/lock_guard.py aus (keine zweite Implementierung; Fundort siehe Skript). Der Guard liest
+    # das Tool-Payload selbst (Claude Edit/Write/MultiEdit/NotebookEdit, Codex apply_patch, Kimi WriteFile/
+    # StrReplaceFile/DeleteFile/MoveFile) und lehnt ab, wenn ein fremder Lock oder ein fremder Team-Brett-Claim das
+    # Ziel abdeckt. `git push` bleibt bei lock_push_guard, daher kein Bash-Matcher. Ablehnung: Claude JSON,
+    # Codex/Kimi Exit 2 + stderr (--actor waehlt den Vertrag). agy hat kein Tool-Ereignis: siehe "unsupported".
+    "lock_edit_guard": {
+        "filename": "lock_edit_guard.py",
         "default_event": "PreToolUse",
         "python_args": ["-X", "utf8"],
         "script_args": ["pretooluse"],
         "actors": {"claude": "claude-code", "codex": "codex", "kimi": "kimi"},
         "timeout": 10,
         "matchers": {
-            "claude": "Edit|Write|MultiEdit|NotebookEdit|Bash",
-            "codex": "^(apply_patch|Bash)$",
+            "claude": "Edit|Write|MultiEdit|NotebookEdit",
+            "codex": "^apply_patch$",
             "kimi": "WriteFile|StrReplaceFile|DeleteFile|MoveFile",
         },
         "unsupported": {
             "agy": "agy kennt nur das Ereignis PreInvocation (vor dem Modellaufruf, ohne Tool-Ziel); "
             "ein Lock-Check pro Datei ist dort nicht moeglich",
         },
-        "status_message": "lock-master: lock check",
+        "status_message": "lock-master: edit lock check",
     },
     "token_budget_guard": {
         "filename": "token_budget_guard.py",
@@ -71,7 +71,9 @@ CANONICAL_SCRIPTS: dict[str, dict[str, Any]] = {
 
 # Aliasse fuer Registry-IDs mit Bindestrich
 _SCRIPT_ALIASES = {
-    "lock-guard": "lock_guard",
+    "lock-edit-guard": "lock_edit_guard",
+    "lock_guard": "lock_edit_guard",
+    "lock-guard": "lock_edit_guard",
     "token-budget-guard": "token_budget_guard",
     "notaus-wake-check": "notaus_wake_check",
 }
@@ -96,8 +98,7 @@ def format_raw_script_snippet(
     timeout_override: int | None = None,
 ) -> dict[str, Any]:
     """Erzeugt einen validierten Hook-Snippet fuer eines der kanonischen Roh-Skripte
-    guards.py / token_budget_guard.py / notaus_wake_check.py oder fuer den lock-master-Guard
-    (lock_guard, Skript liegt in lock-master: script_path ist dort Pflicht).
+    guards.py / token_budget_guard.py / notaus_wake_check.py / lock_edit_guard.py.
     """
     spec = resolve_canonical_script(script_name_or_id)
     provider_key = provider_name.lower().strip()
@@ -105,11 +106,6 @@ def format_raw_script_snippet(
         raise ValueError(
             f"'{script_name_or_id}' ist fuer Provider '{provider_key}' nicht moeglich: "
             f"{spec['unsupported'][provider_key]}"
-        )
-    if spec.get("external") and not script_path:
-        raise ValueError(
-            f"'{script_name_or_id}' liegt nicht in library/ ({spec['external']}): "
-            "script_path (--script) ist Pflicht."
         )
 
     validate_interpreter(python_executable)

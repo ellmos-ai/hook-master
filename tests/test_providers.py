@@ -273,50 +273,55 @@ def test_format_raw_script_notaus_wake_check():
 
 
 # ---------------------------------------------------------------------------
-# lock_guard (lock-master): ein Guard fuer Claude, Codex und Kimi
+# lock_edit_guard (Anschluss an lock-master): ein Edit-Guard fuer Claude, Codex und Kimi
 # ---------------------------------------------------------------------------
 
-LOCK_GUARD = "C:/tools/lock-master/plugin/lock_guard.py"
+GUARD = "C:/hooks/lock_edit_guard.py"
 
 
-def _lock_guard(provider):
-    return format_raw_script_snippet("lock_guard", provider, script_path=LOCK_GUARD, python_executable=sys.executable)
+def _guard(provider):
+    return format_raw_script_snippet("lock_edit_guard", provider, script_path=GUARD, python_executable=sys.executable)
 
 
-def test_lock_guard_claude_snippet_covers_file_tools_and_bash_push():
-    entry = _lock_guard("claude")["hooks"]["PreToolUse"][0]
-    assert entry["matcher"] == "Edit|Write|MultiEdit|NotebookEdit|Bash"
+def test_lock_edit_guard_claude_snippet_covers_the_file_tools_only():
+    entry = _guard("claude")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "Edit|Write|MultiEdit|NotebookEdit"  # git push stays with lock_push_guard
     command = entry["hooks"][0]["command"]
-    assert command.endswith(f'"{LOCK_GUARD}" pretooluse --actor claude-code') and "-X utf8" in command
+    assert command.endswith(f'"{GUARD}" pretooluse --actor claude-code') and "-X utf8" in command
 
 
-def test_lock_guard_codex_snippet_covers_apply_patch_and_bash():
-    entry = _lock_guard("codex")["hooks"]["PreToolUse"][0]
-    assert entry["matcher"] == "^(apply_patch|Bash)$"
+def test_lock_edit_guard_codex_snippet_covers_apply_patch():
+    entry = _guard("codex")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "^apply_patch$"
     hook = entry["hooks"][0]
-    assert hook["command"].endswith(f'"{LOCK_GUARD}" pretooluse --actor codex')
-    assert hook["timeout"] == 10 and hook["statusMessage"] == "lock-master: lock check"
+    assert hook["command"].endswith(f'"{GUARD}" pretooluse --actor codex')
+    assert hook["timeout"] == 10 and hook["statusMessage"] == "lock-master: edit lock check"
 
 
-def test_lock_guard_kimi_snippet_covers_the_file_tools():
-    hook = _lock_guard("kimi")["hooks"][0]
+def test_lock_edit_guard_kimi_snippet_covers_the_file_tools():
+    hook = _guard("kimi")["hooks"][0]
     assert hook["event"] == "PreToolUse" and hook["matcher"] == "WriteFile|StrReplaceFile|DeleteFile|MoveFile"
-    assert hook["command"].endswith(f'"{LOCK_GUARD}" pretooluse --actor kimi')
+    assert hook["command"].endswith(f'"{GUARD}" pretooluse --actor kimi')
 
 
-def test_lock_guard_agy_is_refused_with_the_reason():
+def test_lock_edit_guard_defaults_to_the_library_copy_and_has_aliases():
+    from pathlib import Path
+
+    command = format_raw_script_snippet("lock-guard", "codex", python_executable=sys.executable)[
+        "hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+    assert "library/lock_edit_guard.py" in command
+    assert (Path(__file__).resolve().parents[1] / "library" / "lock_edit_guard.py").is_file()
+    assert resolve_canonical_script("lock_guard")["filename"] == "lock_edit_guard.py"
+
+
+def test_lock_edit_guard_agy_is_refused_with_the_reason():
     with pytest.raises(ValueError, match="PreInvocation"):
-        _lock_guard("agy")
+        _guard("agy")
 
 
-def test_lock_guard_needs_the_script_path_because_it_lives_in_lock_master():
-    with pytest.raises(ValueError, match="script_path"):
-        format_raw_script_snippet("lock-guard", "claude", python_executable=sys.executable)
-
-
-def test_lock_guard_unknown_provider_is_refused():
+def test_lock_edit_guard_unknown_provider_is_refused():
     with pytest.raises(ValueError):
-        format_raw_script_snippet("lock_guard", "git", script_path=LOCK_GUARD, python_executable=sys.executable)
+        format_raw_script_snippet("lock_edit_guard", "git", script_path=GUARD, python_executable=sys.executable)
 
 
 def test_script_args_reject_shell_metacharacters():
@@ -335,13 +340,12 @@ def test_existing_scripts_get_no_extra_arguments():
     assert command.endswith('guards.py"')
 
 
-def test_lock_guard_install_snippet_cli(capsys):
+def test_lock_edit_guard_install_snippet_cli(capsys):
     from hook_master.cli import main
 
-    assert main(["install-snippet", "--id", "lock_guard", "--provider", "codex", "--script", LOCK_GUARD,
-                 "--python", sys.executable]) == 0
+    assert main(["install-snippet", "--id", "lock_edit_guard", "--provider", "codex", "--python", sys.executable]) == 0
     printed = json.loads(capsys.readouterr().out)
-    assert printed["hooks"]["PreToolUse"][0]["matcher"] == "^(apply_patch|Bash)$"
+    assert printed["hooks"]["PreToolUse"][0]["matcher"] == "^apply_patch$"
 
 
 # ---------------------------------------------------------------------------

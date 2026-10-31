@@ -3,11 +3,12 @@
 ## [Unreleased]
 
 ### Added
-- `install-snippet --id lock_guard` (also `format_raw_script_snippet("lock_guard", ...)`): hook fragment for lock-master's
-  `plugin/lock_guard.py` as a `PreToolUse` guard for Claude Code (`Edit|Write|MultiEdit|NotebookEdit|Bash`), Codex
-  (`^(apply_patch|Bash)$`) and Kimi Code (`WriteFile|StrReplaceFile|DeleteFile|MoveFile`), with `--actor` selecting the host's
-  denial contract (Claude JSON, Codex/Kimi exit code 2 + stderr). `--script` is mandatory because the script lives in
-  lock-master. agy is refused with the reason (only `PreInvocation`, no tool target).
+- `library/lock_edit_guard.py` and `install-snippet --id lock_edit_guard` (aliases `lock_guard`, `lock-guard`): edit-side
+  counterpart of `lock_push_guard`, a connector that runs lock-master's `plugin/lock_guard.py` (no second implementation; lookup via
+  `ELLMOS_LOCK_MASTER`, default clone locations, plugin cache; not found -> stderr note, exit 0). `PreToolUse` fragments for Claude
+  Code (`Edit|Write|MultiEdit|NotebookEdit`), Codex (`^apply_patch$`) and Kimi Code (`WriteFile|StrReplaceFile|DeleteFile|MoveFile`),
+  `--actor` selecting the host's denial contract (Claude JSON, Codex/Kimi exit code 2 + stderr). agy is refused with the reason
+  (only `PreInvocation`, no tool target).
 - `script_snippet(..., script_args=[...])` on all four providers appends validated plain-token arguments to the command
   (`format_script_args` rejects quotes, spaces and shell metacharacters).
 
