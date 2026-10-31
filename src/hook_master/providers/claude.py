@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
-from .invariants import quote_executable
+from .invariants import format_script_args, quote_executable
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -77,12 +77,13 @@ class ClaudeProvider(BaseProvider):
         python_executable: str = "python",
         python_args: list[str] | None = None,
         matcher: str | None = None,
+        script_args: list[str] | None = None,
     ) -> dict[str, Any]:
         self.validate_command(python_executable)
         python_executable = quote_executable(python_executable)
         args_str = f" {' '.join(python_args)}" if python_args else ""
         norm_path = str(script_path).replace("\\", "/")
-        cmd = f'{python_executable}{args_str} "{norm_path}"'
+        cmd = f'{python_executable}{args_str} "{norm_path}"' + format_script_args(script_args)
         return {"hooks": {event: [self.format_hook(event, cmd, matcher=matcher)]}}
 
 

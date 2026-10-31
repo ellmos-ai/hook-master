@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-181%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Contributing](https://img.shields.io/badge/contributing-guidelines-blue.svg)](CONTRIBUTING.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Plain%20Text%20Audited-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verified](https://img.shields.io/badge/verified-2026--10--03-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-198%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Contributing](https://img.shields.io/badge/contributing-guidelines-blue.svg)](CONTRIBUTING.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Plain%20Text%20Audited-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verified](https://img.shields.io/badge/verified-2026--10--03-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -321,6 +321,45 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 | `doctor [--id <id>] [--timing]` | Comprehensive diagnostics beyond verify/diff (checks hashes, syntax, drift, configs). Exit `0`/`1`/`2` |
 | `consent <id> [--by <name>] [--note <text>]` | Grant deploy consent for one entry |
 | `consent-status [<id>]` | Display consent state for one or all entries |
+| `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <path>] [--python <exe>]` | Print (never install) the hook configuration fragment for a canonical script; `--id lock_edit_guard` is the lock-master edit guard (see below) |
+
+### Lock edit guard for Claude, Codex and Kimi (`lock_edit_guard`)
+
+`library/lock_edit_guard.py` is the edit-side counterpart of `lock_push_guard.py` (push protection, repository-root locks). It is
+only a connector: it finds lock-master's `plugin/lock_guard.py` and runs it with the same arguments, so all lock semantics (file
+locks, fencing, team-board claims, `apply_patch` and Kimi file targets, the denial contract per host) live in lock-master and
+nowhere else. Because it **executes** what it finds, it only looks in places that belong to the user: `ELLMOS_LOCK_MASTER` (repository, plugin
+directory or the file; an explicit decision, not checked further), then the Claude Code plugin cache
+(`~/.claude/plugins/cache/**/ellmos-lock-master/*/`, newest version) and `~/_Local_DEV/repos/lock-master`. Everything but the
+variable must lie under the home directory; on POSIX the file and every folder up to home must also be owned by the user and not
+writable by group or others. Drive roots (`C:/_Local_DEV/...`) are deliberately **not** searched, because other accounts can create
+folders there on Windows; on a host whose clone lives at a drive root, set `ELLMOS_LOCK_MASTER` (or rely on the plugin cache).
+On Windows the restriction to the user profile is the check: with the Windows defaults it is not writable for other standard
+accounts, and an owner-SID comparison would need Win32 calls without extra protection. If nothing is found it says so on stderr and
+exits 0, like the plugin's own launcher (the check is then inactive, and loudly so).
+
+`install-snippet --id lock_edit_guard --provider <p>` prints the fragment (it never edits a host configuration). `git push` stays
+with `lock_push_guard`, so there is no `Bash` matcher:
+
+| Provider | Tools the hook is bound to | Denial |
+|---|---|---|
+| `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | JSON `permissionDecision: deny` |
+| `codex` | `apply_patch` (paths from the patch headers) | exit code 2, reason on stderr |
+| `kimi` | `Write`, `Edit` (names in the tool schema of Kimi Code CLI 0.14.2, field `path`), `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | exit code 2, reason on stderr |
+| `agy` | not possible: agy only has `PreInvocation` (before the model call, no tool target); `install-snippet` refuses with that reason | n/a |
+
+```
+hook-master install-snippet --id lock_edit_guard --provider codex
+```
+
+Aliases `lock_guard` and `lock-guard` resolve to the same entry. The commands use `python -X utf8 "<library path>" pretooluse
+--actor <host>`; pass `--script` to point at a deployed copy (for example `~/.codex/hooks/lock_edit_guard.py`).
+
+Why `PreToolUse` is not in the default snippets: `hook_snippet()` of the Claude and Codex providers asserts it never emits
+`PreToolUse` (`forbidden_events`; workflowhooker states the event is reserved for hard guards). It runs before every matching
+tool call and can block it, so it is only produced by an explicit call (`pretooluse_blocker_snippet()`, `script_snippet()`,
+`install-snippet --id guards|lock_edit_guard`), never as a side effect of registering a consumer. Shell commands are not parsed for
+file targets: a `Bash`/`Shell` write is not covered. The Kimi names were read from the tool schema of the installed Kimi Code CLI 0.14.2 (`Write` and `Edit` with `path`, shell tool `Bash` with `command`); the older `WriteFile` family stays bound. The fragment does not bind Kimi's `Bash` (no `lock_push_guard` for Kimi yet; adding `Bash` to the matcher would let the guard cover `git push`, proposal only).
 
 ---
 

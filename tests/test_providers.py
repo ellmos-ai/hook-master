@@ -273,6 +273,85 @@ def test_format_raw_script_notaus_wake_check():
 
 
 # ---------------------------------------------------------------------------
+# lock_edit_guard (Anschluss an lock-master): ein Edit-Guard fuer Claude, Codex und Kimi
+# ---------------------------------------------------------------------------
+
+GUARD = "C:/hooks/lock_edit_guard.py"
+
+
+def _guard(provider):
+    return format_raw_script_snippet("lock_edit_guard", provider, script_path=GUARD, python_executable=sys.executable)
+
+
+def test_lock_edit_guard_claude_snippet_covers_the_file_tools_only():
+    entry = _guard("claude")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "Edit|Write|MultiEdit|NotebookEdit"  # git push stays with lock_push_guard
+    command = entry["hooks"][0]["command"]
+    assert command.endswith(f'"{GUARD}" pretooluse --actor claude-code') and "-X utf8" in command
+
+
+def test_lock_edit_guard_codex_snippet_covers_apply_patch():
+    entry = _guard("codex")["hooks"]["PreToolUse"][0]
+    assert entry["matcher"] == "^apply_patch$"
+    hook = entry["hooks"][0]
+    assert hook["command"].endswith(f'"{GUARD}" pretooluse --actor codex')
+    assert hook["timeout"] == 10 and hook["statusMessage"] == "lock-master: edit lock check"
+
+
+def test_lock_edit_guard_kimi_snippet_covers_the_file_tools():
+    hook = _guard("kimi")["hooks"][0]
+    assert hook["event"] == "PreToolUse" and hook["matcher"] == "Write|Edit|WriteFile|StrReplaceFile|DeleteFile|MoveFile"
+    # Kimi Code CLI 0.14.2 names its file tools Write and Edit in the tool schema; the older names stay bound
+    names = set(hook["matcher"].split("|"))
+    assert {"Write", "Edit", "WriteFile", "StrReplaceFile", "DeleteFile", "MoveFile"} <= names
+    assert hook["command"].endswith(f'"{GUARD}" pretooluse --actor kimi')
+
+
+def test_lock_edit_guard_defaults_to_the_library_copy_and_has_aliases():
+    from pathlib import Path
+
+    command = format_raw_script_snippet("lock-guard", "codex", python_executable=sys.executable)[
+        "hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+    assert "library/lock_edit_guard.py" in command
+    assert (Path(__file__).resolve().parents[1] / "library" / "lock_edit_guard.py").is_file()
+    assert resolve_canonical_script("lock_guard")["filename"] == "lock_edit_guard.py"
+
+
+def test_lock_edit_guard_agy_is_refused_with_the_reason():
+    with pytest.raises(ValueError, match="PreInvocation"):
+        _guard("agy")
+
+
+def test_lock_edit_guard_unknown_provider_is_refused():
+    with pytest.raises(ValueError):
+        format_raw_script_snippet("lock_edit_guard", "git", script_path=GUARD, python_executable=sys.executable)
+
+
+def test_script_args_reject_shell_metacharacters():
+    from hook_master.providers.invariants import format_script_args
+
+    assert format_script_args(None) == "" and format_script_args(["pretooluse", "--actor", "codex"]) == (
+        " pretooluse --actor codex")
+    for bad in ("a b", "a;b", "a&b", "a|b", "$(x)", "`x`", "'x'", '"x"', ""):
+        with pytest.raises(ValueError):
+            format_script_args([bad])
+
+
+def test_existing_scripts_get_no_extra_arguments():
+    command = format_raw_script_snippet("guards", "claude", python_executable=sys.executable)[
+        "hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+    assert command.endswith('guards.py"')
+
+
+def test_lock_edit_guard_install_snippet_cli(capsys):
+    from hook_master.cli import main
+
+    assert main(["install-snippet", "--id", "lock_edit_guard", "--provider", "codex", "--python", sys.executable]) == 0
+    printed = json.loads(capsys.readouterr().out)
+    assert printed["hooks"]["PreToolUse"][0]["matcher"] == "^apply_patch$"
+
+
+# ---------------------------------------------------------------------------
 # Doctor Invarianten-Scanning
 # ---------------------------------------------------------------------------
 
