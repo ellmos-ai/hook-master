@@ -97,7 +97,12 @@ def main(argv: list[str]) -> int:
     try:
         runpy.run_path(str(script), run_name="__main__")
     except SystemExit as exc:
-        return exc.code if isinstance(exc.code, int) else 0
+        if exc.code is None:
+            return 0
+        if isinstance(exc.code, int):
+            return exc.code
+        print(exc.code, file=sys.stderr)  # sys.exit("text"): the text is the message, the status is 1
+        return 1
     return 0
 
 

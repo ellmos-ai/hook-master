@@ -7,14 +7,14 @@
   counterpart of `lock_push_guard`, a connector that runs lock-master's `plugin/lock_guard.py` (no second implementation). It executes
   what it finds, so it looks only in user-owned places: `ELLMOS_LOCK_MASTER`, the plugin cache and `~/_Local_DEV/repos/lock-master`
   (under home; on POSIX owner and permission checked); drive roots are never searched. Not found -> stderr note, exit 0. `PreToolUse` fragments for Claude
-  Code (`Edit|Write|MultiEdit|NotebookEdit`), Codex (`^apply_patch$`) and Kimi Code (`WriteFile|StrReplaceFile|DeleteFile|MoveFile`),
+  Code (`Edit|Write|MultiEdit|NotebookEdit`), Codex (`^apply_patch$`) and Kimi Code (`Write|Edit|WriteFile|StrReplaceFile|DeleteFile|MoveFile`),
   `--actor` selecting the host's denial contract (Claude JSON, Codex/Kimi exit code 2 + stderr). agy is refused with the reason
   (only `PreInvocation`, no tool target).
 - `script_snippet(..., script_args=[...])` on all four providers appends validated plain-token arguments to the command
   (`format_script_args` rejects quotes, spaces and shell metacharacters).
 
 ### Fixed
-- `ClaudeProvider`, `KimiProvider` and `AgyProvider` quote an interpreter path that contains whitespace (as `CodexProvider` already did); `--python "C:/Program Files/Python312/python.exe"` no longer yields a command that splits at the space. The helper is now `invariants.quote_executable`. Bare names and paths without whitespace are unchanged. Test badge and `llms.txt` count corrected to the measured 181 (was 134; 197 with the lock_edit_guard tests).
+- `ClaudeProvider`, `KimiProvider` and `AgyProvider` quote an interpreter path that contains whitespace (as `CodexProvider` already did); `--python "C:/Program Files/Python312/python.exe"` no longer yields a command that splits at the space. The helper is now `invariants.quote_executable`. Bare names and paths without whitespace are unchanged. Test badge and `llms.txt` count corrected to the measured 181 (was 134; 198 with the lock_edit_guard tests).
 - Codex PowerShell snippets invoke quoted executable paths with `&`, including script and action-guard handlers and paths containing spaces. Consumers share this fix; other providers retain their shell syntax.
 - Consent allowlists grant deployment only for the JSON boolean `true`. Strings such as `"false"`, numbers and containers no longer grant consent. Invalid document/record shapes and invalid UTF-8 are read as an empty allowlist, leaving deployment blocked without crashing status queries.
 - Regression coverage verifies strict boolean handling and preserves an existing deployed hook when its allowlist contains `"consented": "false"`.

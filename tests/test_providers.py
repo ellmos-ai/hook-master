@@ -300,7 +300,10 @@ def test_lock_edit_guard_codex_snippet_covers_apply_patch():
 
 def test_lock_edit_guard_kimi_snippet_covers_the_file_tools():
     hook = _guard("kimi")["hooks"][0]
-    assert hook["event"] == "PreToolUse" and hook["matcher"] == "WriteFile|StrReplaceFile|DeleteFile|MoveFile"
+    assert hook["event"] == "PreToolUse" and hook["matcher"] == "Write|Edit|WriteFile|StrReplaceFile|DeleteFile|MoveFile"
+    # Kimi Code CLI 0.14.2 names its file tools Write and Edit in the tool schema; the older names stay bound
+    names = set(hook["matcher"].split("|"))
+    assert {"Write", "Edit", "WriteFile", "StrReplaceFile", "DeleteFile", "MoveFile"} <= names
     assert hook["command"].endswith(f'"{GUARD}" pretooluse --actor kimi')
 
 

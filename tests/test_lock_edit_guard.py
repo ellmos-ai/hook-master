@@ -46,6 +46,14 @@ def test_arguments_stdin_and_exit_code_reach_the_guard(tmp_path):
     assert "['pretooluse', '--actor', 'codex'] PAYLOAD" in done.stdout
 
 
+def test_exit_with_a_text_is_a_failure_not_a_pass(tmp_path):
+    root = fake_guard(tmp_path / "lock-master", "import sys\nsys.exit('guard broke')\n")
+    done = run({"ELLMOS_LOCK_MASTER": str(root)})
+    assert done.returncode == 1 and "guard broke" in done.stderr
+    ok = fake_guard(tmp_path / "other", "import sys\nsys.exit(None)\n")
+    assert run({"ELLMOS_LOCK_MASTER": str(ok)}).returncode == 0  # negative control
+
+
 def test_env_may_name_the_repo_the_plugin_dir_or_the_file(tmp_path):
     root = fake_guard(tmp_path / "lock-master", "import sys\nsys.exit(3)\n")
     for value in (root, root / "plugin", root / "plugin" / "lock_guard.py"):

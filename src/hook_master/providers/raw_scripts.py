@@ -41,7 +41,7 @@ CANONICAL_SCRIPTS: dict[str, dict[str, Any]] = {
         "matchers": {
             "claude": "Edit|Write|MultiEdit|NotebookEdit",
             "codex": "^apply_patch$",
-            "kimi": "WriteFile|StrReplaceFile|DeleteFile|MoveFile",
+            "kimi": "Write|Edit|WriteFile|StrReplaceFile|DeleteFile|MoveFile",
         },
         "unsupported": {
             "agy": "agy kennt nur das Ereignis PreInvocation (vor dem Modellaufruf, ohne Tool-Ziel); "
