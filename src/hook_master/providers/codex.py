@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .base import BaseProvider
-from .invariants import format_script_args, validate_timeout
+from .invariants import format_script_args, quote_executable, validate_timeout
 
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
@@ -21,11 +21,7 @@ def powershell_command(command: str) -> str:
     return "& " + stripped if stripped.startswith(('"', "'")) else command
 
 
-def _quote_executable(executable: str) -> str:
-    # CLI option parsing removes outer shell quotes from a path with spaces.
-    if any(char.isspace() for char in executable) and Path(executable).is_file():
-        return f'"{executable}"'
-    return executable
+_quote_executable = quote_executable
 
 
 class CodexProvider(BaseProvider):

@@ -125,6 +125,15 @@ def format_script_args(script_args: list[str] | None) -> str:
     return " " + " ".join(script_args)
 
 
+def quote_executable(executable: str) -> str:
+    """Quote an interpreter path that contains whitespace (CLI option parsing strips outer quotes).
+
+    Bare names and paths without whitespace stay as they are, so existing snippets do not change."""
+    if any(char.isspace() for char in executable) and Path(executable).is_file():
+        return f'"{executable}"'
+    return executable
+
+
 def validate_timeout(timeout: int | float | None) -> int:
     """Validiert, dass ein konfigurierter Timeout wirksam und positiv ist."""
     if timeout is None:
