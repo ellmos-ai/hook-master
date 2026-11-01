@@ -104,7 +104,7 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert any(s in llms for s in ("Last-checked: 2026-10-03", "Last-checked: 2026-10-01", "Last-checked: 2026-09-29"))
+    assert any(s in llms for s in ("Last-checked: 2026-11-01", "Last-checked: 2026-10-03", "Last-checked: 2026-10-01", "Last-checked: 2026-09-29"))
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
@@ -396,3 +396,32 @@ def test_changelog_has_unreleased_pfad_a_2026_10_03():
 def test_marketing_log_has_pfad_a_entry_2026_10_03():
     mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
     assert "10. IMPLEMENTED PFAD A REPOSITORY HYGIENE, BILINGUAL CONTRIBUTING & CONTRACT TESTS (2026-10-03)" in mlog
+
+
+def test_changelog_has_unreleased_pfad_b_2026_11_01():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "2026-11-01" in changelog
+    assert "Pfad B" in changelog
+    assert "Canonical Hook Library Reference" in changelog
+
+
+def test_canonical_library_catalog_parity():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    for script in [
+        "guards.py", "lock_edit_guard.py", "python_exec_guard.py",
+        "token_budget_guard.py", "token_budget_statusline.py",
+        "notaus_wake_check.py", "precompact_state.py", "starter_pack_hook.py"
+    ]:
+        assert script in en_text, f"{script} missing in README.md"
+        assert script in de_text, f"{script} missing in README_de.md"
+
+
+def test_guard_interception_sequence_diagram_present():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    assert "Runtime Guard Interception & Execution Sequence" in en_text
+    assert "Laufzeit-Guard-Abfang- & Ausfuehrungsablauf" in de_text
+    assert "Zero-Egress" in en_text
+    assert "Zero-Egress" in de_text

@@ -5,9 +5,9 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-10-03
+Last-checked: 2026-11-01
 Version: 0.2.0
-Tests: 198 passed (pytest, tests/)
+Tests: 201 passed (pytest, tests/)
 License: MIT
 Attribution: NOTICE
 Contributing: CONTRIBUTING.md (Bilingual guidelines, invariants, Plan D workflow)
@@ -30,6 +30,14 @@ Statutory-Notice: § 521 BGB German statutory liability limitation
   gate preventing unauthorized or unreviewed hook scripts from being materialized.
 - Hook-Doctor diagnostics (`doctor [--id <id>] [--timing]`): checks hash match,
   `py_compile` syntax integrity, mtime drift, and agent config JSON/TOML validity.
+- Canonical Hook Library Suite (`library/`): curated, zero-egress scripts
+  including `guards.py` (pre-tool fence), `lock_edit_guard.py` (lock-master edit bridge),
+  `python_exec_guard.py` (Codex shell execution defense), `token_budget_guard.py`
+  (adaptive Sparmodus/Notaus token limiter), `token_budget_statusline.py` (statusline display),
+  `notaus_wake_check.py` (emergency stop check), and `starter_pack_hook.py` (session bootstrap).
+- Runtime Guard Interception Sequence (Section 06 of README.md / README_de.md):
+  rigorous sequence diagram detailing offline tool evaluation, fail-closed denial contracts
+  (exit code 2 / JSON deny), and host tool authorization boundaries.
 - Four-View Architectural Topology projection (Section 05 of README.md / README_de.md):
   rigorous mapping across caller runtimes, sovereign dispatch engine, pointer persistence
   ledger, and unprivileged air-gap defense perimeter.
