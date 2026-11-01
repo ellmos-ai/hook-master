@@ -1,7 +1,7 @@
 <img src="assets/banner.png" width="100%" alt="hook-master banner">
 <!-- alternate banner: assets/banner-b.png (swap on occasion) -->
 
-[![Tests](https://img.shields.io/badge/tests-198%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Contributing](https://img.shields.io/badge/contributing-guidelines-blue.svg)](CONTRIBUTING.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Plain%20Text%20Audited-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verified](https://img.shields.io/badge/verified-2026--10--03-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](tests/) [![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md) [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue)](https://python.org) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)](https://github.com/ellmos-ai/hook-master) [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-success)](SECURITY.md) [![Security](https://img.shields.io/badge/security-Local--First-success)](SECURITY.md) [![Consent Gate](https://img.shields.io/badge/consent%20gate-fail--closed-critical)](SECURITY.md) [![Notice](https://img.shields.io/badge/Attribution-NOTICE-blue.svg)](NOTICE) [![Contributing](https://img.shields.io/badge/contributing-guidelines-blue.svg)](CONTRIBUTING.md) [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff) [![Ecosystem](https://img.shields.io/badge/ecosystem-ellmos--ai-purple)](https://github.com/ellmos-ai) [![Umbrella](https://img.shields.io/badge/umbrella-open--bricks-blueviolet)](https://github.com/open-bricks) [![LLM-Ready](https://img.shields.io/badge/LLM--Ready-llms.txt-orange)](llms.txt) [![Level 1 SBOM](https://img.shields.io/badge/Level%201%20SBOM-Plain%20Text%20Audited-blue.svg)](THIRD_PARTY_LICENSES.txt) [![Verified](https://img.shields.io/badge/verified-2026--11--01-brightgreen.svg)](llms.txt) [![Security SLA](https://img.shields.io/badge/security%20sla-48h%20response-blue.svg)](SECURITY.md)
 
 # hook-master
 
@@ -212,6 +212,8 @@ graph TD
 <a id="sec-06"></a><a id="6-end-to-end-execution--lifecycle-sequence"></a><a id="execution--lifecycle-flow"></a>
 ## 6. End-to-End Execution & Lifecycle Sequence
 
+### Materialization & Deployment Sequence
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -248,6 +250,34 @@ sequenceDiagram
     CLI->>Doc: "Verify canonical hash & py_compile"
     Doc->>Target: "Check mtime drift & target config validity"
     Doc-->>CLI: "Report health verdict (ok / warning / error)"
+```
+
+### Runtime Guard Interception & Execution Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor LLM as "AI Agent (Claude / Codex / Kimi / Antigravity)"
+    participant Runtime as "Agent Runtime (PreToolUse / UserPromptSubmit)"
+    participant Guard as "Materialized Hook Guard (library/*.py)"
+    participant State as "Local Security & Governance State"
+    participant Tool as "Protected Host Tool / File System"
+
+    LLM->>Runtime: Request Tool Call (Edit / Write / apply_patch / Bash)
+    Runtime->>Guard: Invoke Interception Hook (stdin / args JSON)
+    Note over Guard,State: 100% Offline Zero-Egress Boundary
+    Guard->>State: Inspect Lock Status & Security Invariants
+    alt Active Lock or Invariant Violation Detected
+        State-->>Guard: Lock Active or Forbidden Operation
+        Guard-->>Runtime: Fail-Closed Denial (Exit Code 2 or JSON Deny)
+        Runtime-->>LLM: Blocked - Operation Denied with Explanation
+    else Safe Execution Approved
+        State-->>Guard: No Active Lock or Invariant Satisfied
+        Guard-->>Runtime: Allow Execution (Exit Code 0 or JSON Allow)
+        Runtime->>Tool: Execute Authorized Tool Operation
+        Tool-->>Runtime: Tool Results Delivered
+        Runtime-->>LLM: Complete Tool Output Returned
+    end
 ```
 
 ---
@@ -323,7 +353,39 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 | `consent-status [<id>]` | Display consent state for one or all entries |
 | `install-snippet --id <id> --provider claude\|codex\|kimi\|agy [--script <path>] [--python <exe>]` | Print (never install) the hook configuration fragment for a canonical script; `--id lock_edit_guard` is the lock-master edit guard (see below) |
 
+### Canonical Hook Library Catalog (`library/`)
+
+`hook-master` ships a curated collection of standalone, zero-egress canonical hook scripts located in the `library/` directory. Each hook is cryptographically hashed with SHA-256 upon registration:
+
+| Script | Event Trigger | Supported Agents | Security Role & Function |
+|---|---|---|---|
+| `guards.py` | `PreToolUse` | Claude Code, Codex | Base security fencing & file edit guard preventing unsafe mutations |
+| `lock_edit_guard.py` | `PreToolUse` | Claude Code, Codex, Kimi | Fencing connector delegating file edits to `lock-master` with fail-closed denial contracts |
+| `python_exec_guard.py` | `PreToolUse` | Codex | Defends against literal Python script execution via Windows shell file association, enforcing explicit Python interpreter flags |
+| `token_budget_guard.py` | `UserPromptSubmit` | Claude Code, Antigravity | Adaptive token budget and context window monitoring with 4-mode Sparmodus/Notaus state machine |
+| `token_budget_statusline.py` | `StatusLine` | Claude Code | Zero-egress status line renderer formatting active token consumption and budget tiers |
+| `notaus_wake_check.py` | `SessionStart` / `PreInvocation` | All Agents | Emergency stop state preservation and wake check verifying unblocked operational status |
+| `precompact_state.py` | `PreCompact` | Claude Code, Antigravity | Preserves critical runtime state snapshots before agent context window resets |
+| `starter_pack_hook.py` | `SessionStart` | All Agents | Injects bootstrap instructions and profile chains without external dependencies |
+
+### Codex Python Execution Guard (`python_exec_guard`)
+
+`library/python_exec_guard.py` is a specialized `PreToolUse` guard for Codex running on Windows PowerShell and Command Prompt. It prevents accidental invocation of `.py` script files via Windows shell file association (e.g., executing `script.py` directly instead of `python -X utf8 script.py`).
+- **Hazard Prevention:** Direct shell execution of `.py` files on Windows bypasses interpreter flags (such as `-X utf8` or environment flags) and may spawn detached interactive console windows.
+- **AST and Command Token Analysis:** Parses shell commands, PowerShell call operators (`&`), nested quotes, and here-strings to identify literal `.py` target files.
+- **Fail-Closed Blocking:** If an unhandled literal script execution is detected, the guard exits with code `2` and writes clear remediation instructions to `stderr`.
+
+### Token Budget & Sparmodus Guard (`token_budget_guard`)
+
+`library/token_budget_guard.py` intercepts `UserPromptSubmit` events to enforce token budgets across 4 explicit operating modes:
+- **`off`:** Purely advisory warnings as token consumption crosses configured thresholds (`kurztext_used_pct`, `sparmodus_used_pct`).
+- **`auto-spar`:** Armed monitoring mode for high-load sessions; escalates to `notaus` if limits are exceeded and auto-recovers when reset.
+- **`manual-spar`:** Manually triggered conservative mode; automatically reverts to `off` once token budget fully resets.
+- **`notaus`:** Complete operational brake; halts further token consumption until the reset timestamp is reached (`wake_at`), preserving prior state.
+
 ### Lock edit guard for Claude, Codex and Kimi (`lock_edit_guard`)
+
+
 
 `library/lock_edit_guard.py` is the edit-side counterpart of `lock_push_guard.py` (push protection, repository-root locks). It is
 only a connector: it finds lock-master's `plugin/lock_guard.py` and runs it with the same arguments, so all lock semantics (file
