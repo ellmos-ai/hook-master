@@ -399,9 +399,13 @@ bei `lock_push_guard`, daher gibt es keinen `Bash`-Matcher:
 | Provider | Werkzeuge, an die der Hook gebunden ist | Ablehnung |
 |---|---|---|
 | `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | JSON `permissionDecision: deny` |
-| `codex` | `apply_patch` (Pfade aus den Patch-Kopfzeilen) | Exit-Code 2, Begründung auf stderr |
+| `codex` | `apply_patch` (Pfade aus den Patch-Kopfzeilen) | Exit-Code 2, Begründung auf stderr (unter Windows nur mit exitcode-erhaltendem `commandWindows`, siehe Hinweis unten) |
 | `kimi` | `Write`, `Edit` (Namen im Werkzeugschema von Kimi Code CLI 0.14.2, Feld `path`), `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | Exit-Code 2, Begründung auf stderr |
 | `agy` | nicht möglich: agy kennt nur `PreInvocation` (vor dem Modellaufruf, ohne Werkzeugziel); `install-snippet` lehnt mit dieser Begründung ab | entfällt |
+
+**Codex unter Windows:** Codex startet Hooks über `pwsh -Command`. PowerShell meldet jeden Exit-Code ungleich 0 als 1. Codex wertet Exit 1 als fehlgeschlagenen Hook und führt den Werkzeugaufruf trotzdem aus. Ein Guard, der mit Exit 2 sperrt, bleibt so wirkungslos (gemessen mit codex-cli 0.160.0). Die von hook-master erzeugten `commandWindows`-Einträge reichen den Exit-Code deshalb durch:
+`$global:LASTEXITCODE = 0; <Befehl>; $hookOk = $?; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if (-not $hookOk) { exit 1 }`.
+Handgeschriebene Codex-Konfigurationen brauchen dieselbe Hülle. Alternativ gibt der Guard `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "..."}}` auf stdout aus und endet mit Exit 0. Zur Kontrolle einen harmlosen gesperrten Befehl ausführen: Im Codex-Log muss `hook: PreToolUse Blocked` stehen, nicht `Failed`.
 
 ```
 hook-master install-snippet --id lock_edit_guard --provider codex

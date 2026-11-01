@@ -22,6 +22,13 @@
   (`format_script_args` rejects quotes, spaces and shell metacharacters).
 
 ### Fixed
+- **Codex guards on Windows had no blocking effect (security):** Codex runs Windows hooks through `pwsh -Command`, and
+  PowerShell reports every non-zero exit as 1. Codex treated a guard's exit 2 as a failed hook (`hook: PreToolUse Failed`)
+  and executed the tool call. Measured live with codex-cli 0.160.0 on 2026-11-01. Generated `commandWindows` entries now
+  wrap the command so the native exit code survives (`$global:LASTEXITCODE = 0; <command>; ... exit $LASTEXITCODE`); a
+  failing PowerShell expression still exits 1. Regression tests run the generated form in `pwsh` and Windows PowerShell for
+  exit codes 0-3. Existing Codex configurations must be regenerated or re-trusted through `/hooks`. Hand-written ones
+  need the same wrapper or a guard that answers with JSON `permissionDecision: deny` on stdout (README section 7).
 - `ClaudeProvider`, `KimiProvider` and `AgyProvider` quote an interpreter path that contains whitespace (as `CodexProvider` already did); `--python "C:/Program Files/Python312/python.exe"` no longer yields a command that splits at the space. The helper is now `invariants.quote_executable`. Bare names and paths without whitespace are unchanged. Test badge and `llms.txt` count corrected to the measured 181 (was 134; 198 with the lock_edit_guard tests).
 - Codex PowerShell snippets invoke quoted executable paths with `&`, including script and action-guard handlers and paths containing spaces. Consumers share this fix; other providers retain their shell syntax.
 - Consent allowlists grant deployment only for the JSON boolean `true`. Strings such as `"false"`, numbers and containers no longer grant consent. Invalid document/record shapes and invalid UTF-8 are read as an empty allowlist, leaving deployment blocked without crashing status queries.
