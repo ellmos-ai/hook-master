@@ -166,7 +166,9 @@ def test_codex_provider_emits_valid_structure():
     assert "PreToolUse" not in snippet["hooks"]
     assert set(snippet["hooks"]) == {"SessionStart", "UserPromptSubmit"}
     hook_item = snippet["hooks"]["SessionStart"][0]["hooks"][0]
-    assert hook_item["commandWindows"].removeprefix("& ") == hook_item["command"]
+    from hook_master.providers.codex import powershell_command
+
+    assert hook_item["commandWindows"] == powershell_command(hook_item["command"])
     assert hook_item["timeout"] == 10
 
 
@@ -433,7 +435,9 @@ def test_codex_compact_session_start_script_contract():
     assert entry["matcher"] == "^compact$"
     hook = entry["hooks"][0]
     assert hook["timeout"] == 10
-    assert hook["commandWindows"] == hook["command"]
+    from hook_master.providers.codex import EXIT_CODE_PREFIX, EXIT_CODE_SUFFIX
+
+    assert hook["commandWindows"] == EXIT_CODE_PREFIX + hook["command"] + EXIT_CODE_SUFFIX
 
 
 # ---------------------------------------------------------------------------

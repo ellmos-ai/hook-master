@@ -11,14 +11,23 @@ from .invariants import format_script_args, quote_executable, validate_timeout
 FORBIDDEN_DEFAULT_EVENT = "PreToolUse"
 
 
-def powershell_command(command: str) -> str:
-    """Invoke a leading quoted executable in a Codex PowerShell session.
+EXIT_CODE_PREFIX = "$global:LASTEXITCODE = 0; "
+EXIT_CODE_SUFFIX = "; $hookOk = $?; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if (-not $hookOk) { exit 1 }"
 
-    Bare executable names, explicit calls and shell expressions retain their
-    existing form. Other providers keep their own shell syntax.
+
+def powershell_command(command: str) -> str:
+    """Build the Codex ``commandWindows`` form of a hook command.
+
+    A leading quoted executable is invoked with ``&``. The command is then
+    wrapped so that ``pwsh -Command`` exits with the native exit code:
+    without it PowerShell reports every non-zero exit as 1, and Codex treats
+    a guard's exit 2 as a failed hook and runs the tool call anyway.
     """
     stripped = command.lstrip()
-    return "& " + stripped if stripped.startswith(('"', "'")) else command
+    if stripped.startswith(EXIT_CODE_PREFIX):
+        return command
+    invoked = "& " + stripped if stripped.startswith(('"', "'")) else command
+    return EXIT_CODE_PREFIX + invoked + EXIT_CODE_SUFFIX
 
 
 _quote_executable = quote_executable
@@ -138,4 +147,10 @@ class CodexProvider(BaseProvider):
         }
 
 
-__all__ = ["CodexProvider", "FORBIDDEN_DEFAULT_EVENT", "powershell_command"]
+__all__ = [
+    "CodexProvider",
+    "EXIT_CODE_PREFIX",
+    "EXIT_CODE_SUFFIX",
+    "FORBIDDEN_DEFAULT_EVENT",
+    "powershell_command",
+]

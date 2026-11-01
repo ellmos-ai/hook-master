@@ -320,6 +320,17 @@ containing spaces are quoted automatically. These shell rules apply only to
 Codex; Claude and Kimi retain their provider-specific syntax. Review changed
 hook definitions again through Codex `/hooks` before using them.
 
+Generated `commandWindows` entries also keep the native exit code. Codex runs
+Windows hooks through `pwsh -Command`, which reports every non-zero exit as 1.
+Codex treats exit 1 as a failed hook and runs the tool call anyway, so a guard
+that blocks with exit 2 has no effect (measured with codex-cli 0.160.0). The
+generated form is
+`$global:LASTEXITCODE = 0; <command>; $hookOk = $?; if ($LASTEXITCODE) { exit $LASTEXITCODE }; if (-not $hookOk) { exit 1 }`.
+Hand-written Codex configurations need the same wrapper. The alternative is a
+guard that prints `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "..."}}`
+on stdout and exits 0. Check the result with a harmless blocked command: the
+Codex log must show `hook: PreToolUse Blocked`, not `Failed`.
+
 ---
 
 <a id="sec-08"></a><a id="8-entry-model--pointer-specifications"></a><a id="entry-model"></a>
@@ -406,7 +417,7 @@ with `lock_push_guard`, so there is no `Bash` matcher:
 | Provider | Tools the hook is bound to | Denial |
 |---|---|---|
 | `claude` | `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | JSON `permissionDecision: deny` |
-| `codex` | `apply_patch` (paths from the patch headers) | exit code 2, reason on stderr |
+| `codex` | `apply_patch` (paths from the patch headers) | exit code 2, reason on stderr (on Windows only with an exit-code-preserving `commandWindows`, see section 7) |
 | `kimi` | `Write`, `Edit` (names in the tool schema of Kimi Code CLI 0.14.2, field `path`), `WriteFile`, `StrReplaceFile`, `DeleteFile`, `MoveFile` | exit code 2, reason on stderr |
 | `agy` | not possible: agy only has `PreInvocation` (before the model call, no tool target); `install-snippet` refuses with that reason | n/a |
 
