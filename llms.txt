@@ -36,7 +36,8 @@ Statutory-Notice: § 521 BGB German statutory liability limitation
   including `guards.py` (pre-tool fence), `lock_edit_guard.py` (lock-master edit bridge),
   `python_exec_guard.py` (Codex shell execution defense), `token_budget_guard.py`
   (adaptive Sparmodus/Notaus token limiter), `token_budget_statusline.py` (statusline display),
-  `notaus_wake_check.py` (emergency stop check), and `starter_pack_hook.py` (session bootstrap).
+  `notaus_wake_check.py` (emergency stop check), `starter_pack_hook.py` (session bootstrap), and
+  `backslash_guard.py` (Claude Code Bash backslash-corruption stop).
 - Runtime Guard Interception Sequence (Section 06 of README.md / README_de.md):
   rigorous sequence diagram detailing offline tool evaluation, fail-closed denial contracts
   (exit code 2 / JSON deny), and host tool authorization boundaries.

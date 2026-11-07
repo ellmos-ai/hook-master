@@ -360,6 +360,14 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 | `notaus_wake_check.py` | `SessionStart` / `PreInvocation` | Alle Agenten | Notaus-Zustandssicherung und Weckprüfung zur Verifikation eines ungesperrten Betriebsstatus |
 | `precompact_state.py` | `PreCompact` | Claude Code, Antigravity | Sichert kritische Laufzeit-Zustands-Snapshots vor Kontextfenster-Kompaktierungen |
 | `starter_pack_hook.py` | `SessionStart` | Alle Agenten | Injiziert Starter-Pack-Instruktionen und Profil-Ketten ohne externe Abhängigkeiten |
+| `backslash_guard.py` | `PreToolUse` | Claude Code | Hält Bash-Befehle an, deren Backslash-Inhalt unterwegs still zerstört würde (Windows-Pfade, doppelte Backslashes) |
+
+### Backslash-Guard für Claude Code (`backslash_guard`)
+
+`library/backslash_guard.py` blockiert Bash-Aufrufe, die `\\` oder einen Laufwerkspfad mit Backslash (`C:\...`) enthalten.
+- **Gemessene Gefahr (Bash-Tool von Claude Code unter Windows, 2026-11-07):** Das Tool macht aus `\\` ein `\`, bevor Bash läuft, auch in `'...'` und `<<'EOF'`. Python macht danach aus `\r`, `\t`, `\n`, `\a`, `\b`, `\f` in normalen Stringliteralen ohne Warnung Steuerzeichen, aus `C:\work\repos` wird `C:\work<CR>epos`. Verdoppeln schützt nie. Das PowerShell-Tool halbiert nicht. Andere Hosts sind nicht gemessen.
+- **Abhilfe in der Meldung:** Pfade mit `/` schreiben, Backslash-Inhalt per Write-Tool als Datei ablegen oder das PowerShell-Tool nutzen. `# backslash-ok` im Befehl umgeht den Guard bei Absicht.
+- **Fail-open:** Exit `2` mit Grund auf `stderr` nur bei einem Treffer; jeder interne Fehler endet mit `0`. Der Guard verhindert stille Datenschäden und ist keine Sicherheitsgrenze.
 
 ### Codex Python-Ausführungsschutz (`python_exec_guard`)
 

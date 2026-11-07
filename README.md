@@ -378,6 +378,14 @@ There is also a reserved, still-unevaluated optional `doctor` object per entry (
 | `notaus_wake_check.py` | `SessionStart` / `PreInvocation` | All Agents | Emergency stop state preservation and wake check verifying unblocked operational status |
 | `precompact_state.py` | `PreCompact` | Claude Code, Antigravity | Preserves critical runtime state snapshots before agent context window resets |
 | `starter_pack_hook.py` | `SessionStart` | All Agents | Injects bootstrap instructions and profile chains without external dependencies |
+| `backslash_guard.py` | `PreToolUse` | Claude Code | Stops Bash commands whose backslash content would be silently destroyed in transit (Windows paths, doubled backslashes) |
+
+### Backslash Guard for Claude Code (`backslash_guard`)
+
+`library/backslash_guard.py` blocks Bash tool calls that contain `\\` or a drive path with a backslash (`C:\...`).
+- **Measured hazard (Claude Code Bash tool on Windows, 2026-11-07):** the tool turns `\\` into `\` before bash runs, also inside `'...'` and `<<'EOF'`. Python then turns `\r`, `\t`, `\n`, `\a`, `\b`, `\f` in ordinary string literals into control characters without a warning, so `C:\work\repos` becomes `C:\work<CR>epos`. Doubling never protects. The PowerShell tool does not halve. Other hosts are not measured.
+- **Remedy in the block message:** write paths with `/`, put backslash content into a file with the Write tool, or use the PowerShell tool. `# backslash-ok` in the command bypasses the guard on purpose.
+- **Fail-open:** exit `2` with the reason on `stderr` only for a match; any internal error exits `0`. It prevents silent data corruption and is not a security boundary.
 
 ### Codex Python Execution Guard (`python_exec_guard`)
 
