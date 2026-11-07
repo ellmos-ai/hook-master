@@ -5,11 +5,13 @@
 > pointer-only + optional-transport mechanic, applied to executable hook
 > scripts instead of text policies.
 
-Last-checked: 2026-11-01
+Last-checked: 2026-11-07
 Version: 0.2.0
-Tests: 201 passed (pytest, tests/)
+Tests: 218 passed (pytest, tests/)
 License: MIT
 Attribution: NOTICE
+Code-of-Conduct: CODE_OF_CONDUCT.md (Contributor Covenant v2.1, bilingual)
+LLM-Pointer: llm.txt (P-022 compatibility pointer)
 Contributing: CONTRIBUTING.md (Bilingual guidelines, invariants, Plan D workflow)
 Transparency: THIRD_PARTY_LICENSES.md and THIRD_PARTY_LICENSES.txt (Level 1 SBOM, zero runtime dependencies, 100% PSFL-2.0 stdlib)
 Repository: https://github.com/ellmos-ai/hook-master
