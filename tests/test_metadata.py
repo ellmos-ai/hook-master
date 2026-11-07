@@ -412,7 +412,8 @@ def test_canonical_library_catalog_parity():
     for script in [
         "guards.py", "lock_edit_guard.py", "python_exec_guard.py",
         "token_budget_guard.py", "token_budget_statusline.py",
-        "notaus_wake_check.py", "precompact_state.py", "starter_pack_hook.py"
+        "notaus_wake_check.py", "precompact_state.py", "starter_pack_hook.py",
+        "backslash_guard.py",
     ]:
         assert script in en_text, f"{script} missing in README.md"
         assert script in de_text, f"{script} missing in README_de.md"

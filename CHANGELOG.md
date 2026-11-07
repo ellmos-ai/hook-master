@@ -22,6 +22,9 @@
 - **Contract Verification Suite Expansion (tests/test_metadata.py):** Added automated regression test assertions verifying canonical library catalog parity, guard interception sequence diagram presence, and 2026-11-01 audit verification recency.
 
 ### Added
+- `library/backslash_guard.py` (2026-11-07): Claude Code `PreToolUse`/`Bash` guard that blocks commands containing `\\` or a
+  `C:\` drive path, because the Bash tool on Windows halves `\\` before bash runs and Python then turns `\r`/`\t` into control
+  characters. Bypass `# backslash-ok`, fail-open on internal errors. Tests in `tests/test_backslash_guard.py`.
 - `library/lock_edit_guard.py` and `install-snippet --id lock_edit_guard` (aliases `lock_guard`, `lock-guard`): edit-side
   counterpart of `lock_push_guard`, a connector that runs lock-master's `plugin/lock_guard.py` (no second implementation). It executes
   what it finds, so it looks only in user-owned places: `ELLMOS_LOCK_MASTER`, the plugin cache and `~/_Local_DEV/repos/lock-master`
