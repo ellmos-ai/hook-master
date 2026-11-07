@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Pfad A Repository Hygiene, Modul-Schema-Sync, Bilingual Code of Conduct, LLM Guidance Pointer & Issue Templates (2026-11-07) [Pfad A]
+- **Kanonischer Modul-Schema-Sync (_schema/ellmos.module.v2.schema.json & PIN.json):** Canonical drift resolved via `sync_schema_to_repo.py`; updated schema and pin hash to canonical state `321517bdfc4c261f97ce57030f9fdacff929325853d114fe32aa05fb0899135e`; verified `test_module_manifest_contract.py` pass.
+- **Bilingual Code of Conduct (CODE_OF_CONDUCT.md):** Established canonical bilingual `CODE_OF_CONDUCT.md` based on Contributor Covenant v2.1 (Deutsch & English), detailing harassment-free standards, reporting channels (`security@ellmos.ai`, `security@open-bricks.org`), and confidential vulnerability reporting.
+- **Standardized LLM Guidance Pointer (llm.txt):** Established canonical compatibility pointer `llm.txt` per P-022 referencing `llms.txt`, `README.md`, and core governance invariants.
+- **GitHub Issue Templates (.github/ISSUE_TEMPLATE/):** Provisioned bilingual issue templates for Bug Reports (`bug_report.md`) and Feature Requests (`feature_request.md`) with explicit offline-first, local-only, and invariant checks.
+- **CI Workflow Hardening (.github/workflows/ci.yml):** Added `workflow_dispatch:` trigger for manual execution and automated `git diff --check` whitespace validation step.
+- **PEP 621 Standard Packaging & Metadata (pyproject.toml):** Registered canonical `"Code of Conduct"` and `"LLM Guidance"` endpoints under `[project.urls]`; maintained strict version freeze at `0.2.0` per T-20260920-167562623.
+- **Documentation & Badges (README.md & README_de.md):** Added Code of Conduct and LLM Guidance badges; synchronized Section 16 with references to `CODE_OF_CONDUCT.md` and `llm.txt`; updated test badges to empirically verified test count (218 passed / bestanden) and updated verification date to `2026--11--07`.
+- **AI Agent Context & Discovery Indexing (llms.txt):** Synchronized `llms.txt` timestamp to `2026-11-07` and updated verified test count.
+- **Contract Verification Suite Expansion (tests/test_metadata.py):** Added new contract tests for bilingual Code of Conduct integrity, LLM guidance pointer, issue template presence, and PEP 639 license discipline; updated required house files and audit recency assertions.
+
 ### Pfad B Discoverability, Canonical Hook Library Reference, Guard Interception Sequence & Contract Tests (2026-11-01) [Pfad B]
 - **Runtime Guard Interception Sequence Diagram (README.md & README_de.md):** Added formal Mermaid Sequence Diagram in Section 06 (`Runtime Guard Interception & Execution Sequence` / `Laufzeit-Guard-Abfang- & Ausfuehrungsablauf`), visually documenting the fail-closed interception lifecycle across AI agent runtimes (Claude Code, Codex, Kimi, Antigravity), zero-egress offline boundary, and denial contracts (`exit 2` / `permissionDecision: deny`).
 - **Canonical Hook Library Reference Table (README.md & README_de.md):** Documented the complete 8-script canonical hook suite in Section 09 (`guards.py`, `lock_edit_guard.py`, `python_exec_guard.py`, `token_budget_guard.py`, `token_budget_statusline.py`, `notaus_wake_check.py`, `precompact_state.py`, `starter_pack_hook.py`) with supported agent matrix and security roles.

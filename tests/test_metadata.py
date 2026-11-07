@@ -13,7 +13,7 @@ def test_required_house_files_exist():
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
         "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt",
-        "MARKETING-LOG.txt", "TODO.md", "CONTRIBUTING.md",
+        "MARKETING-LOG.txt", "TODO.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "llm.txt",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -104,7 +104,7 @@ def test_sibling_tools_matrix_parity():
 
 def test_llms_txt_metadata_and_sections():
     llms = (REPO / "llms.txt").read_text(encoding="utf-8")
-    assert any(s in llms for s in ("Last-checked: 2026-11-01", "Last-checked: 2026-10-03", "Last-checked: 2026-10-01", "Last-checked: 2026-09-29"))
+    assert any(s in llms for s in ("Last-checked: 2026-11-07", "Last-checked: 2026-11-01", "Last-checked: 2026-10-03", "Last-checked: 2026-10-01", "Last-checked: 2026-09-29"))
     assert "Version: 0.2.0" in llms
     assert "https://github.com/ellmos-ai/hook-master" in llms
     assert "## Key files" in llms
@@ -265,7 +265,7 @@ def test_pep621_twenty_keywords_saturation():
 def test_third_party_licenses_invariant_cross_reference_matrix():
     sbom = (REPO / "THIRD_PARTY_LICENSES.md").read_text(encoding="utf-8")
     assert "Level 1 SBOM Invariant Cross-Reference Matrix" in sbom
-    assert any(s in sbom for s in ("Audited:** 2026-10-03", "Audited:** 2026-10-01", "Audited:** 2026-09-29"))
+    assert any(s in sbom for s in ("Audited:** 2026-11-07", "Audited:** 2026-10-03", "Audited:** 2026-10-01", "Audited:** 2026-09-29"))
     for i in range(1, 11):
         assert "INV-" in sbom
 
@@ -284,7 +284,7 @@ def test_marketing_log_has_pfad_b_entry():
 
 def test_plain_text_sbom_companion():
     txt_sbom = (REPO / "THIRD_PARTY_LICENSES.txt").read_text(encoding="utf-8")
-    assert any(s in txt_sbom for s in ("Audited: Stand: 2026-10-03", "Audited: Stand: 2026-10-01", "Audited: Stand: 2026-09-29"))
+    assert any(s in txt_sbom for s in ("Audited: Stand: 2026-11-07", "Audited: Stand: 2026-10-03", "Audited: Stand: 2026-10-01", "Audited: Stand: 2026-09-29"))
     assert "INV-LOCAL-01" in txt_sbom
     assert "INV-SLA-10" in txt_sbom
     assert "RunAsInvoker" in txt_sbom
@@ -425,3 +425,53 @@ def test_guard_interception_sequence_diagram_present():
     assert "Laufzeit-Guard-Abfang- & Ausfuehrungsablauf" in de_text
     assert "Zero-Egress" in en_text
     assert "Zero-Egress" in de_text
+
+
+def test_code_of_conduct_bilingual_integrity():
+    coc = (REPO / "CODE_OF_CONDUCT.md").read_text(encoding="utf-8")
+    assert "## Deutsch" in coc
+    assert "## English" in coc
+    assert "Contributor Covenant v2.1" in coc
+    assert "security@ellmos.ai" in coc
+    assert "security@open-bricks.org" in coc
+    assert "Private Vulnerability Reporting" in coc
+
+
+def test_llm_txt_compatibility_pointer():
+    llm = (REPO / "llm.txt").read_text(encoding="utf-8")
+    assert "llms.txt" in llm
+    assert "README.md" in llm
+    assert "INV-LOCAL-01" in llm
+
+
+def test_github_issue_templates_exist():
+    issue_dir = REPO / ".github" / "ISSUE_TEMPLATE"
+    assert (issue_dir / "bug_report.md").is_file()
+    assert (issue_dir / "feature_request.md").is_file()
+    bug = (issue_dir / "bug_report.md").read_text(encoding="utf-8")
+    feature = (issue_dir / "feature_request.md").read_text(encoding="utf-8")
+    assert "Bug Report / Fehlerbericht" in bug
+    assert "Feature Request / Funktionswunsch" in feature
+    assert "INV-LOCAL-01" in feature
+
+
+def test_pep_639_license_specification():
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'license = "MIT"' in pyproject
+    assert "License :: OSI Approved" not in pyproject
+
+
+def test_code_of_conduct_and_llm_guidance_badges_presence():
+    en_text = (REPO / "README.md").read_text(encoding="utf-8")
+    de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
+    assert "code%20of%20conduct" in en_text
+    assert "verhaltenskodex" in de_text
+    assert "LLM--Guidance" in en_text
+    assert "LLM--Guidance" in de_text
+
+
+def test_changelog_has_unreleased_pfad_a_2026_11_07():
+    changelog = (REPO / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert "## [Unreleased]" in changelog
+    assert "2026-11-07" in changelog
+    assert "Pfad A" in changelog
