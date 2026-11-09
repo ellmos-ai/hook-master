@@ -65,10 +65,17 @@ def _pending_resume_hint(state: dict) -> str:
     parts = []
     goals = state.get("paused_goals")
     agents = state.get("paused_agents")
-    if isinstance(goals, list):
+    if isinstance(goals, list) and goals:
         parts.append(f"{len(goals)} pausierte Goals")
-    if isinstance(agents, list):
+    elif isinstance(goals, dict) and goals:
+        parts.append("erhaltener Goal-Parkvermerk")
+    if isinstance(agents, list) and agents:
         parts.append(f"{len(agents)} geparkte Worker")
+    elif isinstance(agents, dict):
+        pending = [name for name, entry in agents.items()
+                   if not isinstance(entry, dict) or not entry.get("resumed_at")]
+        if pending:
+            parts.append(f"{len(pending)} geparkte Worker")
     if not parts:
         return ""
     return " Aufhebung ausstehend (" + ", ".join(parts) + "); zuerst den vollständigen Parkkreis reaktivieren."
@@ -84,7 +91,13 @@ def main() -> int:
 
     state = _read_json(SPARMODUS_STATE_PATH)
     if state.get("mode") != "notaus":
-        return 0  # kein Notaus aktiv -> normaler Sessionstart, kein Hinweis
+        pending = _pending_resume_hint(state)
+        if pending:
+            print(json.dumps({"hookSpecificOutput": {
+                "hookEventName": "SessionStart",
+                "additionalContext": pending.strip(),
+            }}))
+        return 0
 
     now = time.time()
     wake_at = state.get("wake_at")

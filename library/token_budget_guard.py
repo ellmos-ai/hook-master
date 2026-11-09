@@ -221,16 +221,30 @@ def _pending_resume_hint(state: dict) -> str:
     parts = []
     goals = state.get("paused_goals")
     agents = state.get("paused_agents")
-    if isinstance(goals, list):
+    if isinstance(goals, list) and goals:
         parts.append(f"{len(goals)} pausierte Goals")
-    if isinstance(agents, list):
+    elif isinstance(goals, dict) and goals:
+        parts.append("erhaltener Goal-Parkvermerk")
+    if isinstance(agents, list) and agents:
         parts.append(f"{len(agents)} geparkte Worker")
+    elif isinstance(agents, dict):
+        pending = [name for name, entry in agents.items()
+                   if not isinstance(entry, dict) or not entry.get("resumed_at")]
+        if pending:
+            parts.append(f"{len(pending)} geparkte Worker")
     if not parts:
         return ""
     return " Aufhebung ausstehend (" + ", ".join(parts) + "); zuerst den vollständigen Parkkreis reaktivieren."
 
 
-def _compute_transition(mode: str, stage: int) -> str | None:
+def _compute_transition(
+    mode: str,
+    stage: int,
+    *,
+    five_hour_stage: int | None = None,
+    sparmodus_state: dict | None = None,
+    now: float | None = None,
+) -> str | None:
     """Liefert den neuen Modus, oder None wenn keine Modusaenderung ansteht."""
     if mode == "off":
         return None  # rein advisory, keine Selbstschaltung
@@ -241,8 +255,24 @@ def _compute_transition(mode: str, stage: int) -> str | None:
             return "off"  # Auto-Ende bei voller Erholung
         return None  # auto-spar bleibt bewaffnet; manual-spar bei Stufe 1/2 unveraendert
     if mode == "notaus":
+        # Das 5h-Fenster gilt erst bei Stufe 0 (< kurztext_used_pct) als erholt.
+        # Solange das 5h-Fenster noch auf Stufe 1/2/3 steht (z. B. 94% bei
+        # notaus_used_pct=99 oder nach manuellem /notaus), darf keine
+        # automatische Rueckkehr wegen "5h-Stand erholt" feuern (T-20261025-616545768).
+        if five_hour_stage is not None and five_hour_stage > 0:
+            return None
+        if isinstance(sparmodus_state, dict) and sparmodus_state.get("set_by") == "user":
+            wake_at = sparmodus_state.get("wake_at")
+            current_now = time.time() if now is None else now
+            if (
+                isinstance(wake_at, (int, float))
+                and not isinstance(wake_at, bool)
+                and current_now < float(wake_at)
+                and (five_hour_stage is None or five_hour_stage > 0)
+            ):
+                return None
         if stage < 3:
-            return "__RECOVER__"  # Ziel aus prior_mode; Stufe 2 haelt mindestens den Sparmodus
+            return "__RECOVER__"  # Ziel aus prior_mode; Stufe 2 (Woche nach 5h-Reset) haelt mindestens den Sparmodus
         return None
     return None
 
@@ -271,12 +301,15 @@ def main() -> int:
     # Wochenkontingent nicht verdecken (Notaus 2026-10-13 wurde bei 7d 97 %
     # faelschlich aufgehoben, weil nur five_hour gelesen wurde).
     stage, used_pct, resets_at, window_label = None, None, None, "5h"
+    five_hour_stage = None
     for window, limits, label in (("five_hour", thresholds, "5h"), ("seven_day", weekly_thresholds, "Wochen")):
         entry = bridge.get(window) or {}
         value = entry.get("used_percentage")
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             continue
         window_stage = _stage_for(float(value), limits)
+        if window == "five_hour":
+            five_hour_stage = window_stage
         # Gleichstand ueber 0: das spaeter zuruecksetzende Wochenfenster ist der konservative Weckpunkt.
         if stage is None or window_stage > stage or (window_stage == stage and window_stage > 0):
             stage, used_pct, resets_at, window_label = window_stage, float(value), entry.get("resets_at"), label
@@ -326,7 +359,12 @@ def main() -> int:
             prompt_count = 0
     else:
         # Aktive Ueberwachung: der Hook darf den Modus selbst schalten.
-        target = _compute_transition(mode, stage)
+        target = _compute_transition(
+            mode,
+            stage,
+            five_hour_stage=five_hour_stage,
+            sparmodus_state=sparmodus_state,
+        )
         if target is not None:
             previous_sparmodus_state = sparmodus_state
             if target == "__RECOVER__":
