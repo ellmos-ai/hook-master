@@ -121,3 +121,26 @@ def test_weekly_window_has_its_own_thresholds(tmp_path, monkeypatch, mode, prior
 
     assert guard.main() == 0
     assert json.loads(state.read_text(encoding="utf-8"))["mode"] == expected
+
+
+def test_wake_check_reports_dict_park_markers_when_not_in_notaus(tmp_path, monkeypatch, capsys):
+    wake = _load_library_module("notaus_wake_check_dict_test", "notaus_wake_check.py")
+    state = tmp_path / "sparmodus_state.json"
+    _write(
+        state,
+        {
+            "mode": "off",
+            "paused_goals": {"goal-1": {}},
+            "paused_agents": {"worker-1": {"resumed_at": None}},
+        },
+    )
+    monkeypatch.setattr(wake, "SPARMODUS_STATE_PATH", str(state))
+    monkeypatch.setattr(sys, "stdin", io.StringIO("{}"))
+
+    assert wake.main() == 0
+
+    output = capsys.readouterr().out
+    assert "additionalContext" in output
+    assert "erhaltener Goal-Parkvermerk" in output
+    assert "1 geparkte Worker" in output
+
