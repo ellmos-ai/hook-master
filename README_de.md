@@ -361,6 +361,7 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 | `precompact_state.py` | `PreCompact` | Claude Code, Antigravity | Sichert kritische Laufzeit-Zustands-Snapshots vor Kontextfenster-Kompaktierungen |
 | `starter_pack_hook.py` | `SessionStart` | Alle Agenten | Injiziert Starter-Pack-Instruktionen und Profil-Ketten ohne externe Abhängigkeiten |
 | `backslash_guard.py` | `PreToolUse` | Claude Code | Hält Bash-Befehle an, deren Backslash-Inhalt unterwegs still zerstört würde (Windows-Pfade, doppelte Backslashes) |
+| `mcp_update_daily_check.py` | `SessionStart` | Claude Code | Führt den MCP-Update-Check höchstens einmal täglich im Hintergrund aus und meldet beim Sitzungsstart das letzte Ergebnis |
 
 ### Backslash-Guard für Claude Code (`backslash_guard`)
 
@@ -368,6 +369,14 @@ Zusätzlich existiert ein reserviertes, schema-validiertes `doctor`-Objekt je Ei
 - **Gemessene Gefahr (Bash-Tool von Claude Code unter Windows, 2026-11-07):** Das Tool macht aus `\\` ein `\`, bevor Bash läuft, auch in `'...'` und `<<'EOF'`. Python macht danach aus `\r`, `\t`, `\n`, `\a`, `\b`, `\f` in normalen Stringliteralen ohne Warnung Steuerzeichen, aus `C:\work\repos` wird `C:\work<CR>epos`. Verdoppeln schützt nie. Das PowerShell-Tool halbiert nicht. Andere Hosts sind nicht gemessen.
 - **Abhilfe in der Meldung:** Pfade mit `/` schreiben, Backslash-Inhalt per Write-Tool als Datei ablegen oder das PowerShell-Tool nutzen. `# backslash-ok` im Befehl umgeht den Guard bei Absicht.
 - **Fail-open:** Exit `2` mit Grund auf `stderr` nur bei einem Treffer; jeder interne Fehler endet mit `0`. Der Guard verhindert stille Datenschäden und ist keine Sicherheitsgrenze.
+
+### Täglicher MCP-Update-Check (`mcp_update_daily_check`)
+
+`library/mcp_update_daily_check.py` ersetzt den Platzhalter `echo 'MCP update check done'`, der einen Check meldete, der nie lief. Der erste echte Lauf am 2026-11-13 war rot.
+- **Was er tut:** Er startet `mcp_npm_check.py` nur lesend (nie `--apply`) höchstens einmal in 20 h als losgelösten Hintergrundprozess, weil der Check etwa eine Minute dauert. Beim Sitzungsstart gibt er eine Zeile mit dem letzten abgeschlossenen Ergebnis aus. Getrennt ausgewiesen werden lokal veraltete Pakete (behebt `--apply`), Einträge der MCP-Registry hinter npm (Veröffentlichung offen) und Repo-Versionen, die von npm abweichen (Release offen).
+- **Suche nach dem Prüfskript:** Umgebungsvariable `MCP_UPDATE_CHECK_SCRIPT`, dann `../scripts/mcp_npm_check.py` neben dem Hook, dann `~/OneDrive/.SYNC/scripts/mcp_npm_check.py`.
+- **Zustand und Grenzen:** hostlokal in `~/.claude/mcp_npm_check/`, nie in einem synchronisierten Ordner. Das Ergebnis wird nach dem Lauf atomar ersetzt; ein Lauf bricht nach 900 s ab.
+- **Fail-open:** Jeder Fehler wird zu einer Textzeile mit Exit `0`; der Hook bricht den Sitzungsstart nie. `--selftest` prüft die Ergebniszeile, `--run` führt den Check synchron aus.
 
 ### Codex Python-Ausführungsschutz (`python_exec_guard`)
 
