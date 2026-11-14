@@ -72,3 +72,53 @@ def test_fails_open_on_unwritable_state(tmp_path):
     result = run(tmp_path, script=fake)
     assert result.returncode == 0
     assert "Hook-Fehler" in result.stdout
+
+
+def _load_module(home: Path):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("mcp_update_daily_check_under_test", SOURCE)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.STATE = home / ".claude" / "mcp_npm_check"
+    module.LOG = module.STATE / "last.log"
+    module.STAMP = module.STATE / "started.txt"
+    return module
+
+
+def test_failed_spawn_removes_stamp_so_next_session_retries(tmp_path, monkeypatch):
+    module = _load_module(tmp_path)
+
+    def boom(*_args, **_kwargs):
+        raise OSError("synthetic: interpreter not startable")
+
+    monkeypatch.setattr(module.subprocess, "Popen", boom)
+    try:
+        module.spawn()
+    except OSError:
+        pass
+    else:
+        raise AssertionError("spawn() must re-raise so the hook prints Hook-Fehler")
+    assert not module.STAMP.exists()
+    assert module.due()
+
+
+def test_run_records_abort_when_check_cannot_start(tmp_path, monkeypatch):
+    module = _load_module(tmp_path)
+
+    def boom(*_args, **_kwargs):
+        raise OSError("synthetic: exec failed")
+
+    monkeypatch.setattr(module.subprocess, "run", boom)
+    assert module.run(tmp_path / "check.py") == 0
+    log = module.LOG.read_text(encoding="utf-8")
+    assert "GESAMT: ABBRUCH (Start fehlgeschlagen: OSError" in log
+    assert not module.LOG.with_suffix(".tmp").exists()
+    assert "ABBRUCH" in module.summarize(log, "t", tmp_path / "check.py")
+
+
+def test_missing_message_names_the_configured_script(tmp_path):
+    configured = tmp_path / "configured" / "mcp_npm_check.py"
+    result = run(tmp_path, script=configured)
+    assert result.returncode == 0
+    assert str(configured) in result.stdout
