@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import jsonschema
@@ -13,7 +14,7 @@ def test_required_house_files_exist():
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
         "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt",
-        "MARKETING-LOG.txt", "TODO.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "llm.txt",
+        "TODO.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "llm.txt",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -204,12 +205,31 @@ def test_changelog_has_unreleased_pfad_a():
     assert "## [0.2.0]" in changelog
 
 
-def test_marketing_log_baseline():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
-    assert "MARKETING-LOG: hook-master" in mlog
-    assert "INV-LOCAL-01" in mlog
-    assert "INV-SLA-10" in mlog
-    assert "Pfad A" in mlog
+def test_marketing_log_untracked_and_gitignored():
+    gi = (REPO / ".gitignore").read_text(encoding="utf-8")
+    assert "*MARKETING-LOG.txt" in gi or "MARKETING-LOG.txt" in gi
+
+    pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+    assert "MARKETING-LOG.txt" not in pyproject
+    assert '"Marketing Log"' not in pyproject
+
+    llms = (REPO / "llms.txt").read_text(encoding="utf-8")
+    assert "MARKETING-LOG.txt" not in llms
+
+    if (REPO / ".git").exists():
+        tracked = subprocess.run(
+            ["git", "-C", str(REPO), "ls-files", "--", "MARKETING-LOG.txt"],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        ).stdout.strip()
+        assert tracked == "", f"MARKETING-LOG.txt darf nicht getrackt sein: {tracked!r}"
+        ignored = subprocess.run(
+            ["git", "-C", str(REPO), "check-ignore", "-q", "MARKETING-LOG.txt"],
+            capture_output=True,
+        )
+        assert ignored.returncode == 0, "MARKETING-LOG.txt muss durch .gitignore ausgeschlossen sein"
 
 
 def test_pep561_and_module_execution():
@@ -277,11 +297,6 @@ def test_changelog_has_unreleased_pfad_b():
     assert "2026-09-24" in changelog
 
 
-def test_marketing_log_has_pfad_b_entry():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
-    assert "IMPLEMENTED PFAD B DISCOVERABILITY & MARKETING OVERHAUL (2026-09-24)" in mlog
-
-
 def test_plain_text_sbom_companion():
     txt_sbom = (REPO / "THIRD_PARTY_LICENSES.txt").read_text(encoding="utf-8")
     assert any(s in txt_sbom for s in ("Audited: Stand: 2026-11-07", "Audited: Stand: 2026-10-03", "Audited: Stand: 2026-10-01", "Audited: Stand: 2026-09-29"))
@@ -307,12 +322,6 @@ def test_changelog_has_unreleased_pfad_a_2026_09_29():
     assert "Pfad A" in changelog
 
 
-def test_marketing_log_has_pfad_a_entry_2026_09_29():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
-    assert "PFAD A" in mlog
-    assert "2026-09-29" in mlog
-
-
 def test_ascii_four_view_architectural_topology_parity():
     en_text = (REPO / "README.md").read_text(encoding="utf-8")
     de_text = (REPO / "README_de.md").read_text(encoding="utf-8")
@@ -335,13 +344,6 @@ def test_changelog_has_unreleased_pfad_b_2026_10_01():
     assert "2026-10-01" in changelog
     assert "Pfad B" in changelog
     assert "ASCII Four-View Architectural Topology" in changelog
-
-
-def test_marketing_log_has_pfad_b_entry_2026_10_01():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
-    assert "9. IMPLEMENTED PFAD B DISCOVERABILITY, 4-VIEW TOPOLOGY & LEVEL 1 SBOM (2026-10-01)" in mlog
-    assert "VIEW 1: CALLER RUNTIMES" in mlog
-    assert "SICHT 1 bis SICHT 4" in mlog
 
 
 def test_bilingual_contributing_guidelines_parity():
@@ -391,11 +393,6 @@ def test_changelog_has_unreleased_pfad_a_2026_10_03():
     assert "## [Unreleased]" in changelog
     assert "2026-10-03" in changelog
     assert "Pfad A" in changelog
-
-
-def test_marketing_log_has_pfad_a_entry_2026_10_03():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
-    assert "10. IMPLEMENTED PFAD A REPOSITORY HYGIENE, BILINGUAL CONTRIBUTING & CONTRACT TESTS (2026-10-03)" in mlog
 
 
 def test_changelog_has_unreleased_pfad_b_2026_11_01():
