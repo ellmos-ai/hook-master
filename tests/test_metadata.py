@@ -37,6 +37,12 @@ def test_marketing_log_is_ignored_and_untracked():
     assert tracked == "", "MARKETING-LOG.txt must not be tracked"
 
 
+def test_public_indexes_do_not_reference_local_only_marketing_log():
+    for name in ["llms.txt", "llm.txt", "README.md", "README_de.md", "pyproject.toml"]:
+        text = (REPO / name).read_text(encoding="utf-8")
+        assert "MARKETING-LOG" not in text, f"{name} verweist auf die lokale Datei MARKETING-LOG.txt"
+
+
 def test_required_house_files_exist():
     for name in [
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",

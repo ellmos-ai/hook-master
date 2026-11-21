@@ -65,7 +65,6 @@ Statutory-Notice: § 521 BGB German statutory liability limitation
 - `CONTRIBUTING.md` — bilingual contribution guidelines, Plan D local workflow & 10 invariants.
 - `THIRD_PARTY_LICENSES.md` — Level 1 SBOM, license audit & 10 architecture invariants.
 - `THIRD_PARTY_LICENSES.txt` — plain-text companion Level 1 SBOM inventory.
-- `MARKETING-LOG.txt` — positioning, personas, search queries & governance invariants.
 - `.github/labels.yml` — 11 standard governance issue/PR labels.
 - `.github/dependabot.yml` — weekly automated GitHub Actions dependency updates.
 - `.github/workflows/` — hardened CI matrix, stale lifecycle triage, welcome onboarding, auto-assign, and label-sync.
