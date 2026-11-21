@@ -1,11 +1,40 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 import jsonschema
+import pytest
 
 REPO = Path(__file__).resolve().parents[1]
+
+
+def _read_local_marketing_log() -> str:
+    """MARKETING-LOG.txt is a local-only working file (untracked, see .gitignore).
+
+    The content checks still run wherever the file exists (developer hosts) and
+    are skipped on clean checkouts such as CI.
+    """
+    path = REPO / "MARKETING-LOG.txt"
+    if not path.is_file():
+        pytest.skip("MARKETING-LOG.txt is local-only and absent in this checkout")
+    return path.read_text(encoding="utf-8")
+
+
+def test_marketing_log_is_ignored_and_untracked():
+    ignore_lines = [
+        line.strip() for line in (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()
+    ]
+    assert "MARKETING-LOG.txt" in ignore_lines
+    if not (REPO / ".git").exists() or shutil.which("git") is None:
+        pytest.skip("not a git checkout")
+    tracked = subprocess.run(
+        ["git", "ls-files", "--", "MARKETING-LOG.txt"],
+        cwd=REPO, capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    assert tracked == "", "MARKETING-LOG.txt must not be tracked"
 
 
 def test_required_house_files_exist():
@@ -13,7 +42,7 @@ def test_required_house_files_exist():
         "README.md", "README_de.md", "SECURITY.md", "CHANGELOG.md", "LICENSE",
         "llms.txt", "ellmos-module.v2.json", "pyproject.toml",
         "NOTICE", "THIRD_PARTY_LICENSES.md", "THIRD_PARTY_LICENSES.txt",
-        "MARKETING-LOG.txt", "TODO.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "llm.txt",
+        "TODO.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "llm.txt",
     ]:
         assert (REPO / name).is_file(), f"fehlt: {name}"
 
@@ -205,7 +234,7 @@ def test_changelog_has_unreleased_pfad_a():
 
 
 def test_marketing_log_baseline():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    mlog = _read_local_marketing_log()
     assert "MARKETING-LOG: hook-master" in mlog
     assert "INV-LOCAL-01" in mlog
     assert "INV-SLA-10" in mlog
@@ -278,7 +307,7 @@ def test_changelog_has_unreleased_pfad_b():
 
 
 def test_marketing_log_has_pfad_b_entry():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    mlog = _read_local_marketing_log()
     assert "IMPLEMENTED PFAD B DISCOVERABILITY & MARKETING OVERHAUL (2026-09-24)" in mlog
 
 
@@ -308,7 +337,7 @@ def test_changelog_has_unreleased_pfad_a_2026_09_29():
 
 
 def test_marketing_log_has_pfad_a_entry_2026_09_29():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    mlog = _read_local_marketing_log()
     assert "PFAD A" in mlog
     assert "2026-09-29" in mlog
 
@@ -338,7 +367,7 @@ def test_changelog_has_unreleased_pfad_b_2026_10_01():
 
 
 def test_marketing_log_has_pfad_b_entry_2026_10_01():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    mlog = _read_local_marketing_log()
     assert "9. IMPLEMENTED PFAD B DISCOVERABILITY, 4-VIEW TOPOLOGY & LEVEL 1 SBOM (2026-10-01)" in mlog
     assert "VIEW 1: CALLER RUNTIMES" in mlog
     assert "SICHT 1 bis SICHT 4" in mlog
@@ -394,7 +423,7 @@ def test_changelog_has_unreleased_pfad_a_2026_10_03():
 
 
 def test_marketing_log_has_pfad_a_entry_2026_10_03():
-    mlog = (REPO / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+    mlog = _read_local_marketing_log()
     assert "10. IMPLEMENTED PFAD A REPOSITORY HYGIENE, BILINGUAL CONTRIBUTING & CONTRACT TESTS (2026-10-03)" in mlog
 
 
