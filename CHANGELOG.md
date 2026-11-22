@@ -22,6 +22,9 @@
 - **Contract Verification Suite Expansion (tests/test_metadata.py):** Added automated regression test assertions verifying canonical library catalog parity, guard interception sequence diagram presence, and 2026-11-01 audit verification recency.
 
 ### Added
+- `library/mcp_update_daily_check.py` (2026-11-13): Claude Code `SessionStart` hook that replaces the placeholder
+  `echo 'MCP update check done'` (it reported a check that never ran). Starts `mcp_npm_check.py` read-only at most once per
+  20 h in the background and reports the last result in one line; fail-open. Tests in `tests/test_mcp_update_daily_check.py`.
 - `library/backslash_guard.py` (2026-11-07): Claude Code `PreToolUse`/`Bash` guard that blocks commands containing `\\` or a
   `C:\` drive path, because the Bash tool on Windows halves `\\` before bash runs and Python then turns `\r`/`\t` into control
   characters. Bypass `# backslash-ok`, fail-open on internal errors. Tests in `tests/test_backslash_guard.py`.
