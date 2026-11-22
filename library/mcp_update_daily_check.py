@@ -45,7 +45,8 @@ def check_script() -> Path:
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
             return Path(candidate)
-    return Path(candidates[1])
+    # Nothing found: name the path the user configured, else the repo default.
+    return Path(candidates[0] or candidates[1])
 
 
 def summarize(text: str, when: str, check: Path) -> str:
@@ -97,7 +98,12 @@ def spawn() -> None:
     else:
         kwargs["start_new_session"] = True
     # ponytail: two sessions starting in the same instant may both spawn; harmless (read-only check).
-    subprocess.Popen([sys.executable, "-X", "utf8", str(Path(__file__).resolve()), "--run"], **kwargs)
+    try:
+        subprocess.Popen([sys.executable, "-X", "utf8", str(Path(__file__).resolve()), "--run"], **kwargs)
+    except Exception:
+        # No run started: drop the stamp so the next session retries instead of waiting 20 h.
+        STAMP.unlink(missing_ok=True)
+        raise
 
 
 def run(check: Path) -> int:
@@ -111,6 +117,8 @@ def run(check: Path) -> int:
                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         except subprocess.TimeoutExpired:
             out.write(f"\nGESAMT: ABBRUCH (Timeout {RUN_TIMEOUT_S} s)\n")
+        except OSError as error:
+            out.write(f"\nGESAMT: ABBRUCH (Start fehlgeschlagen: {type(error).__name__}: {error})\n")
     os.replace(tmp, LOG)
     return 0
 
