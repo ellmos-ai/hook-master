@@ -1,5 +1,6 @@
 # Internal working notes & locks
 _intern/
+*MARKETING-LOG.txt
 LOCK
 LOCK*.txt
 LOCK.*
