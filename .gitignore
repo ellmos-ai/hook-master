@@ -93,3 +93,6 @@ Desktop.ini
 .DS_Store
 .idea/
 .vscode/
+
+# Local-only working log; must never be tracked (T-20261116-270710133)
+MARKETING-LOG.txt
